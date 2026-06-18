@@ -1,4 +1,5 @@
-"""# 🏆 Rank It Up! - Sistema de Gestão de Torneios de e-Sports
+
+ 🏆 Rank It Up! - Sistema de Gestão de Torneios de e-Sports
 
 ![Rank It Up Logo](./frontend/src/assets/logo.png)
 
@@ -60,13 +61,34 @@ A API do **Rank It Up!** foi projetada seguindo as restrições arquiteturais do
    - Registro detalhado de confrontos dentro de um torneio, capturando placares e dados brutos de desempenho.
    - **Mecanismo de Rating Elo:** Ao finalizar uma partida, o backend calcula automaticamente as mudanças na pontuação dos envolvidos de forma dinâmica. A variação considera a probabilidade de vitória com base no histórico de habilidade atual, aplicando uma lógica ponderada que atualiza instantaneamente a tabela de classificação geral.
 
-	Link para as informações referentes a API/backend: 
-	https://github.com/onlymatz/ProjetoSemestralBRAOOB/blob/main/rankitup-api-docs.md
 ---
 
 ## 🚀 Como Executar o Projeto
 
 ### Pré-requisitos
-Certifique-se de ter as seguintes ferramentas instaladas:
+Certifique-se de ter as seguintes ferramentas instaladas globalmente em sua máquina:
 - [Java Development Kit (JDK) 17 ou superior](https://www.oracle.com/java/technologies/javase-downloads.html)
-- [Node.js (v18+) e npm](https://nodejs.org/)
+- [Node.js (v18+) e gerenciador de pacotes npm](https://nodejs.org/)
+
+```bash
+# 1. Configurando e Executando o Frontend (React / Vite)
+
+# (...) navegação até a pasta frontend
+cd frontend
+
+# Instalação das Dependências: 
+npm install
+
+# Inicialização do Servidor Local: 
+npm run dev
+
+Agora o projeto estará funcionando localmente para teste.
+
+message.txt
+6 KB
+﻿
+.
+edusoares.wav
+ 
+ 
+ 
