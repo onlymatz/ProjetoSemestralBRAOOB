@@ -28,7 +28,7 @@ Para garantir a viabilidade técnica dentro do semestre letivo, a arquitetura do
 O ecossistema do sistema está dividido em duas camadas principais totalmente desacopladas:
 
 **Backend (API RESTful):**
-- **Java 17 / Spring Boot:** Framework base para construção da API estável e escalável.
+- **Java 21 / Spring Boot:** Framework base para construção da API estável e escalável.
 - **Spring Security & JWT:** Controle rigoroso de autenticação e autorização por tokens para os organizadores.
 - **Spring Data JPA / Hibernate:** Abstração e persistência normalizada de dados.
 - **MySQL:** Banco de dados relacional para manutenção da integridade referencial.
@@ -67,7 +67,7 @@ A API do **Rank It Up!** foi projetada seguindo as restrições arquiteturais do
 
 ### Pré-requisitos
 Certifique-se de ter as seguintes ferramentas instaladas globalmente em sua máquina:
-- [Java Development Kit (JDK) 17 ou superior](https://www.oracle.com/java/technologies/javase-downloads.html)
+- [Java Development Kit (JDK) 21](https://www.oracle.com/java/technologies/javase-downloads.html)
 - [Node.js (v18+) e gerenciador de pacotes npm](https://nodejs.org/)
 
 ```bash
