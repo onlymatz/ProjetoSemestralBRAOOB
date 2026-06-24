@@ -1,43 +1,55 @@
-import React from 'react';
-import './Leaderboards.css';
+import { useEffect, useMemo, useState } from 'react';
+import { apiFetch } from '../../services/api';
 
-const Leaderboards = () => {
-    const players = [
-        { rank: 1, name: 'Shroud', mmr: '2.950', winRate: '74%' },
-        { rank: 2, name: 'GhostRaven', mmr: '2.150', winRate: '68%' },
-        { rank: 3, name: 'Fallen', mmr: '2.050', winRate: '61%' },
-    ];
+const playerName = (item) => item?.jogador?.nickname || item?.jogador?.nome || item?.jogador?.email || 'Jogador';
 
-    return (
-        <div className="leaderboard-wrapper">
-            <div className="max-w-4xl mx-auto">
-                <h1 className="text-4xl font-bold text-center mb-10 tracking-tight">Leaderboards</h1>
+function Leaderboards() {
+  const [inscricoes, setInscricoes] = useState([]);
+  const [error, setError] = useState('');
 
-                <div className="table-custom rounded-xl shadow-xl overflow-hidden">
-                    <table className="w-full text-left border-collapse">
-                        <thead>
-                        <tr className="bg-purple-600 text-white font-bold">
-                            <th className="p-4 w-20 text-center">Rank</th>
-                            <th className="p-4">Jogador</th>
-                            <th className="p-4">MMR</th>
-                            <th className="p-4 text-center">Taxa de Vitória</th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        {players.map((player) => (
-                            <tr key={player.rank} className="table-row-custom hover:bg-gray-500/10 transition-colors">
-                                <td className="p-4 text-center font-bold text-purple-500">#{player.rank}</td>
-                                <td className="p-4 font-semibold">{player.name}</td>
-                                <td className="p-4 font-mono text-indigo-500 dark:text-indigo-400">{player.mmr}</td>
-                                <td className="p-4 text-center text-green-500 font-bold">{player.winRate}</td>
-                            </tr>
-                        ))}
-                        </tbody>
-                    </table>
-                </div>
-            </div>
+  useEffect(() => {
+    apiFetch('/api/inscricoes')
+      .then((data) => setInscricoes(Array.isArray(data) ? data : []))
+      .catch((apiError) => setError(apiError.message || 'Nao foi possivel carregar o ranking.'));
+  }, []);
+
+  const ranking = useMemo(() => [...inscricoes].sort((a, b) => (
+    (b.pontosAcumulados || 0) - (a.pontosAcumulados || 0)
+    || (b.vitoriasTotais || 0) - (a.vitoriasTotais || 0)
+  )), [inscricoes]);
+
+  return (
+    <div className="content-stack">
+      <section className="page-heading">
+        <div>
+          <p className="eyebrow">Classificacao</p>
+          <h1>Ranking global</h1>
+          <p>Posicoes ordenadas por pontos, vitorias e saldo competitivo.</p>
         </div>
-    );
-};
+      </section>
+      {error && <div className="notice error">{error}</div>}
+      <section className="table-panel">
+        <table className="data-table">
+          <thead>
+            <tr><th>#</th><th>Jogador</th><th>Equipe</th><th>Torneio</th><th>Status</th><th>Pontos</th><th>Vitorias</th></tr>
+          </thead>
+          <tbody>
+            {ranking.map((item, index) => (
+              <tr key={item.idInscricao}>
+                <td><span className="rank-badge">#{index + 1}</span></td>
+                <td><strong>{playerName(item)}</strong><small>{item.jogador?.email}</small></td>
+                <td>{item.equipe?.tagEquipe || item.equipe?.nomeEquipe || 'Sem equipe'}</td>
+                <td>{item.torneio?.nome || '-'}</td>
+                <td><span className={`status-pill status-${item.status}`}>{item.status}</span></td>
+                <td>{item.pontosAcumulados || 0}</td>
+                <td>{item.vitoriasTotais || 0}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </section>
+    </div>
+  );
+}
 
 export default Leaderboards;

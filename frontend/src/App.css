@@ -1,0 +1,192 @@
+:root {
+  --bg: #080a12;
+  --surface: rgba(16, 22, 38, 0.9);
+  --surface-strong: rgba(20, 28, 48, 0.96);
+  --line: rgba(255, 255, 255, 0.12);
+  --text: #f7f9fc;
+  --muted: #9aa6bb;
+  --cyan: #22d3ee;
+  --violet: #8b5cf6;
+  --green: #34d399;
+  --red: #fb7185;
+  --radius: 8px;
+}
+
+* { box-sizing: border-box; }
+a { color: inherit; text-decoration: none; }
+button, input, select { font: inherit; }
+button { border: 0; }
+
+.app-shell {
+  position: relative;
+  min-height: 100vh;
+  overflow-x: hidden;
+  color: var(--text);
+  background:
+    radial-gradient(circle at 80% 12%, rgba(139, 92, 246, 0.24), transparent 28%),
+    radial-gradient(circle at 14% 4%, rgba(34, 211, 238, 0.16), transparent 28%),
+    var(--bg);
+}
+
+.parallax-layer { position: fixed; inset: 0; pointer-events: none; z-index: 0; }
+.parallax-grid {
+  background-image: linear-gradient(rgba(255,255,255,.045) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.045) 1px, transparent 1px);
+  background-size: 72px 72px;
+  background-attachment: fixed;
+  opacity: .5;
+}
+.parallax-art {
+  background: url('./assets/hero.png') right 9vw top 110px / min(380px, 42vw) auto no-repeat;
+  background-attachment: fixed;
+  opacity: .35;
+}
+
+.global-header, .page-shell, .auth-page { position: relative; z-index: 1; }
+.global-header {
+  width: min(1180px, calc(100% - 32px));
+  margin: 0 auto;
+  padding: 16px 0;
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 20px;
+}
+.brand-lockup, .primary-nav, .header-actions { display: flex; align-items: center; }
+.brand-lockup { gap: 10px; font-size: 1.1rem; }
+.brand-lockup img { width: 40px; height: 40px; object-fit: contain; }
+.primary-nav { justify-content: center; flex-wrap: wrap; gap: 8px; }
+.nav-link, .header-actions span {
+  padding: 9px 12px;
+  border: 1px solid transparent;
+  border-radius: var(--radius);
+  color: var(--muted);
+}
+.nav-link:hover, .nav-link.active { color: white; border-color: var(--line); background: rgba(255,255,255,.06); }
+.header-actions { justify-content: end; gap: 10px; }
+
+.page-shell { width: min(1180px, calc(100% - 32px)); margin: 0 auto; padding: 26px 0 64px; }
+.content-stack { display: grid; gap: 22px; }
+.page-heading, .hero-panel, .profile-hero, .panel, .stat-card, .table-panel, .tournament-card, .auth-card, .profile-item {
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--surface);
+  box-shadow: 0 22px 70px rgba(0,0,0,.34);
+}
+.page-heading, .hero-panel, .profile-hero {
+  display: flex;
+  justify-content: space-between;
+  align-items: end;
+  gap: 24px;
+  padding: 28px;
+}
+.page-heading h1, .auth-intro h1, .profile-hero h1 { margin: 4px 0 8px; font-size: clamp(2rem, 4vw, 3.5rem); line-height: 1; }
+.page-heading p, .auth-intro p, .profile-hero p { margin: 0; color: var(--muted); line-height: 1.7; }
+.eyebrow { margin: 0; color: var(--cyan); font-size: .76rem; font-weight: 900; letter-spacing: .12em; text-transform: uppercase; }
+
+.primary-button, .ghost-button {
+  display: inline-flex;
+  min-height: 44px;
+  align-items: center;
+  justify-content: center;
+  padding: 0 18px;
+  border-radius: var(--radius);
+  color: white;
+  font-weight: 800;
+  cursor: pointer;
+}
+.primary-button { background: linear-gradient(135deg, var(--violet), #0ea5e9); }
+.ghost-button { border: 1px solid var(--line); background: rgba(255,255,255,.06); }
+.full-width { width: 100%; }
+
+.stats-grid, .dashboard-grid, .tournament-grid, .profile-grid { display: grid; gap: 16px; }
+.stats-grid { grid-template-columns: repeat(4, 1fr); }
+.dashboard-grid { grid-template-columns: repeat(2, 1fr); }
+.tournament-grid { grid-template-columns: repeat(3, 1fr); }
+.profile-grid { grid-template-columns: repeat(4, 1fr); }
+.stat-card, .panel, .tournament-card, .profile-item { padding: 20px; }
+.stat-card span, .profile-item span, .card-topline, .meta-grid dt {
+  color: var(--muted); font-size: .78rem; font-weight: 900; letter-spacing: .08em; text-transform: uppercase;
+}
+.stat-card strong { display: block; margin: 18px 0 6px; font-size: 2.2rem; }
+.stat-card small, .rank-row small, .tournament-row small, .data-table small { display: block; color: var(--muted); }
+.panel-title { display: flex; justify-content: space-between; gap: 18px; margin-bottom: 16px; }
+.panel-title h2 { margin: 4px 0 0; }
+.panel-title a { color: var(--cyan); font-weight: 800; }
+
+.rank-list, .tournament-list { display: grid; gap: 10px; }
+.rank-row, .tournament-row {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 12px;
+  padding: 13px;
+  border: 1px solid rgba(255,255,255,.08);
+  border-radius: var(--radius);
+  background: rgba(255,255,255,.04);
+}
+.tournament-row { grid-template-columns: 1fr auto; }
+.rank-badge { display: inline-grid; place-items: center; min-width: 38px; height: 34px; border-radius: var(--radius); color: #fde68a; background: rgba(251,191,36,.12); font-weight: 900; }
+.rank-row b { color: var(--green); }
+
+.table-panel { overflow-x: auto; background: var(--surface-strong); }
+.data-table { width: 100%; min-width: 760px; border-collapse: collapse; }
+.data-table th, .data-table td { padding: 15px; border-bottom: 1px solid rgba(255,255,255,.08); text-align: left; }
+.data-table th { color: var(--muted); font-size: .76rem; letter-spacing: .08em; text-transform: uppercase; }
+.status-pill { padding: 6px 10px; border-radius: var(--radius); background: rgba(255,255,255,.08); font-weight: 800; font-size: .8rem; }
+.status-APROVADO { color: #bbf7d0; background: rgba(52,211,153,.14); }
+
+.tournament-card { display: grid; gap: 14px; }
+.card-topline { display: flex; justify-content: space-between; gap: 12px; }
+.card-topline b { color: var(--cyan); }
+.tournament-card h2 { margin: 0; min-height: 58px; }
+.tournament-card p { margin: 0; color: var(--muted); }
+.meta-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 0; }
+.meta-grid dd { margin: 4px 0 0; font-weight: 800; }
+
+.auth-page {
+  width: min(1120px, calc(100% - 32px));
+  min-height: 100vh;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 1fr minmax(360px, 520px);
+  align-items: center;
+  gap: 48px;
+  padding: 44px 0;
+}
+.auth-intro img { width: 120px; height: 120px; object-fit: contain; filter: drop-shadow(0 18px 32px rgba(139,92,246,.3)); }
+.auth-card { padding: 28px; }
+.auth-card h2 { margin: 4px 0 20px; font-size: 1.7rem; }
+.form-stack, .form-grid { display: grid; gap: 16px; }
+.form-grid { grid-template-columns: 1fr 1fr; }
+.span-all { grid-column: 1 / -1; }
+label { display: grid; gap: 8px; color: var(--muted); font-size: .84rem; font-weight: 800; }
+input, select {
+  width: 100%;
+  min-height: 46px;
+  padding: 0 13px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  color: var(--text);
+  background: rgba(255,255,255,.06);
+  outline: none;
+}
+.auth-switch { color: var(--muted); text-align: center; }
+.auth-switch a { color: var(--cyan); font-weight: 900; }
+.inline-form { display: grid; grid-template-columns: 1.2fr 1fr .8fr auto; gap: 12px; align-items: end; }
+.search-field { min-width: min(100%, 300px); }
+.notice { padding: 13px 15px; border-radius: var(--radius); font-weight: 800; }
+.notice.error { color: #fecdd3; background: rgba(251,113,133,.12); border: 1px solid rgba(251,113,133,.35); }
+.notice.success { color: #bbf7d0; background: rgba(52,211,153,.12); border: 1px solid rgba(52,211,153,.35); }
+
+.profile-hero { justify-content: flex-start; align-items: center; }
+.profile-avatar { display: grid; place-items: center; width: 112px; height: 112px; border-radius: var(--radius); background: linear-gradient(135deg, var(--violet), rgba(34,211,238,.35)); font-size: 2rem; font-weight: 900; }
+.profile-item strong { display: block; margin-top: 18px; font-size: 1.2rem; }
+
+@media (max-width: 900px) {
+  .global-header, .auth-page, .stats-grid, .dashboard-grid, .tournament-grid, .profile-grid, .inline-form { grid-template-columns: 1fr; }
+  .primary-nav, .brand-lockup, .header-actions { justify-content: center; }
+  .page-heading, .hero-panel, .profile-hero { align-items: flex-start; flex-direction: column; }
+  .auth-intro { text-align: center; }
+  .form-grid { grid-template-columns: 1fr; }
+  .span-all { grid-column: auto; }
+}

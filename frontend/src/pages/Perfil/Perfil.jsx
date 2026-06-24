@@ -1,33 +1,39 @@
-import React from 'react';
-import './Perfil.css';
+import { useEffect, useMemo, useState } from 'react';
+import { useAuth } from '../../context/useAuth';
+import { apiFetch } from '../../services/api';
 
-const Perfil = () => {
-    return (
-        <div className="perfil-wrapper flex justify-center items-start pt-10">
-            <div className="w-full max-w-3xl bg-gray-800 rounded-2xl border border-gray-700 shadow-2xl overflow-hidden">
-                <div className="h-40 bg-gradient-to-r from-purple-600 to-indigo-600"></div>
-                <div className="p-8 relative">
-                    <div className="absolute -top-16 left-8 w-32 h-32 bg-gray-700 border-4 border-gray-800 rounded-full flex items-center justify-center text-5xl shadow-xl">
-                        👾
-                    </div>
-                    <div className="mt-16">
-                        <h1 className="text-3xl font-bold text-white m-0">GhostRaven</h1>
-                        <p className="text-gray-400 text-sm mt-1 mb-6">ghostraven@rankitup.com</p>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div className="bg-gray-700/40 p-4 rounded-xl border border-gray-600">
-                                <span className="text-gray-400 text-xs font-semibold uppercase block">Equipe</span>
-                                <span className="text-lg font-bold text-white mt-1 block">Team Zenith</span>
-                            </div>
-                            <div className="bg-gray-700/40 p-4 rounded-xl border border-gray-600">
-                                <span className="text-gray-400 text-xs font-semibold uppercase block">Cargo</span>
-                                <span className="text-lg font-bold text-purple-400 mt-1 block">JOGADOR</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+function Perfil() {
+  const { user } = useAuth();
+  const [jogadores, setJogadores] = useState([]);
+
+  useEffect(() => {
+    apiFetch('/api/jogadores')
+      .then((data) => setJogadores(Array.isArray(data) ? data : []))
+      .catch(() => setJogadores([]));
+  }, []);
+
+  const jogador = useMemo(() => jogadores.find((item) => item.email === user?.email), [jogadores, user?.email]);
+  const name = jogador?.nome || jogador?.nickname || user?.email || 'Jogador';
+
+  return (
+    <div className="content-stack">
+      <section className="profile-hero">
+        <div className="profile-avatar">{name.slice(0, 2).toUpperCase()}</div>
+        <div>
+          <p className="eyebrow">Perfil</p>
+          <h1>{name}</h1>
+          <p>{user?.email}</p>
         </div>
-    );
-};
+      </section>
+
+      <section className="profile-grid">
+        <article className="profile-item"><span>Nickname</span><strong>{jogador?.nickname || 'Sem nickname'}</strong></article>
+        <article className="profile-item"><span>Acesso</span><strong>{user?.perfil === 'ROLE_ADMIN' ? 'Administrador' : 'Jogador'}</strong></article>
+        <article className="profile-item"><span>Equipe</span><strong>{jogador?.equipe?.nomeEquipe || 'Sem equipe vinculada'}</strong></article>
+        <article className="profile-item"><span>Status</span><strong>Conta ativa</strong></article>
+      </section>
+    </div>
+  );
+}
 
 export default Perfil;

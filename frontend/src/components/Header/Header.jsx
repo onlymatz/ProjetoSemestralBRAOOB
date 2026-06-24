@@ -1,33 +1,44 @@
-import React from 'react';
-import { useTheme } from '../../context/ThemeContext'; // Ajuste o caminho se necessário
-import './Header.css';
+import { NavLink, useNavigate } from 'react-router-dom';
+import logo from '../../assets/logo_nobg.png';
+import { useAuth } from '../../context/useAuth';
 
-const Header = () => {
-    const { theme, toggleTheme } = useTheme();
+const links = [
+  { to: '/dashboard', label: 'Visao geral' },
+  { to: '/leaderboards', label: 'Ranking' },
+  { to: '/tournaments', label: 'Torneios' },
+  { to: '/perfil', label: 'Perfil' },
+];
 
-    return (
-        <nav className="global-header">
-            {/* Logo / Título */}
-            <div className="text-xl font-black tracking-wider text-purple-600 dark:text-purple-400">
-                RANK IT UP!
-            </div>
+function Header() {
+  const navigate = useNavigate();
+  const { logout, user } = useAuth();
 
-            {/* Links de Navegação entre suas páginas */}
-            <div className="flex gap-6 font-medium text-sm">
-                <a href="/dashboard" className="hover:text-purple-500 transition-colors">Visão Geral</a>
-                <a href="/leaderboards" className="hover:text-purple-500 transition-colors">Leaderboards</a>
-                <a href="/tournaments" className="hover:text-purple-500 transition-colors">Torneios</a>
-            </div>
+  function handleLogout() {
+    logout();
+    navigate('/login', { replace: true });
+  }
 
-            {/* Botão de Alternar Tema */}
-            <button
-                onClick={toggleTheme}
-                className="px-4 py-2 rounded-full font-bold text-xs border border-gray-300 dark:border-gray-600 transition-all shadow-sm flex items-center gap-2 cursor-pointer bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-100 hover:scale-105"
-            >
-                {theme === 'light' ? '🌙 Modo Escuro' : '☀️ Modo Claro'}
-            </button>
-        </nav>
-    );
-};
+  return (
+    <header className="global-header">
+      <NavLink to="/dashboard" className="brand-lockup" aria-label="Rank It Up">
+        <img src={logo} alt="" />
+        <strong>Rank It Up!</strong>
+      </NavLink>
+
+      <nav className="primary-nav" aria-label="Navegacao principal">
+        {links.map((link) => (
+          <NavLink key={link.to} to={link.to} className={({ isActive }) => `nav-link${isActive ? ' active' : ''}`}>
+            {link.label}
+          </NavLink>
+        ))}
+      </nav>
+
+      <div className="header-actions">
+        <span>{user?.perfil === 'ROLE_ADMIN' ? 'Admin' : 'Jogador'}</span>
+        <button type="button" className="ghost-button" onClick={handleLogout}>Sair</button>
+      </div>
+    </header>
+  );
+}
 
 export default Header;

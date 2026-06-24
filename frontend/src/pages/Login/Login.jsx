@@ -1,70 +1,64 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import './Login.css';
+import { useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import logo from '../../assets/logo_nobg.png';
+import { useAuth } from '../../context/useAuth';
 
-export default function Login() {
-    const [email, setEmail] = useState('');
-    const [password, setPassword] = useState('');
-    const navigate = useNavigate();
+function Login() {
+  const navigate = useNavigate();
+  const { login } = useAuth();
+  const [form, setForm] = useState({ email: '', senha: '' });
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
 
-    const handleLogin = (e) => {
-        e.preventDefault();
-        // Simulação de login indo para o Dashboard
-        navigate('/dashboard');
-    };
+  function updateField(event) {
+    setForm((current) => ({ ...current, [event.target.name]: event.target.value }));
+  }
 
-    return (
-        <div className="auth-container">
-            <div className="auth-box">
-                <div className="logo-section">
-                    <h1 className="logo-text">RANK IT UP!</h1>
-                    <p className="subtitle">Sign in to elevate your game</p>
-                </div>
+  async function handleSubmit(event) {
+    event.preventDefault();
+    setLoading(true);
+    setError('');
 
-                <form onSubmit={handleLogin} className="auth-form">
-                    <h2>Welcome Back</h2>
+    try {
+      await login(form);
+      navigate('/dashboard', { replace: true });
+    } catch (apiError) {
+      setError(apiError.message || 'Nao foi possivel entrar.');
+    } finally {
+      setLoading(false);
+    }
+  }
 
-                    <div className="input-group">
-                        <label>Email Address</label>
-                        <input
-                            type="email"
-                            placeholder="alex.smith@example.com"
-                            value={email}
-                            onChange={(e) => setEmail(e.target.value)}
-                            required
-                        />
-                    </div>
+  return (
+    <main className="auth-page">
+      <section className="auth-intro">
+        <img src={logo} alt="" />
+        <p className="eyebrow">Rank It Up</p>
+        <h1>Entre no painel competitivo</h1>
+        <p>Acesse torneios, ranking, partidas e dados dos jogadores.</p>
+      </section>
 
-                    <div className="input-group">
-                        <label>Password</label>
-                        <input
-                            type="password"
-                            placeholder="••••••••••••"
-                            value={password}
-                            onChange={(e) => setPassword(e.target.value)}
-                            required
-                        />
-                    </div>
-
-                    <div className="form-actions">
-                        <a href="#forgot" className="forgot-link">Forgot Password?</a>
-                    </div>
-
-                    <button type="submit" className="btn-gradient">LOGIN</button>
-
-                    <div className="divider"><span>OR Continue with</span></div>
-
-                    <div className="social-icons">
-                        <button type="button" className="social-btn">Google</button>
-                        <button type="button" className="social-btn">Steam</button>
-                        <button type="button" className="social-btn">PlayStation</button>
-                    </div>
-
-                    <p className="switch-auth">
-                        Don't have an account? <span onClick={() => navigate('/register')}>Sign Up</span>
-                    </p>
-                </form>
-            </div>
-        </div>
-    );
+      <section className="auth-card">
+        <p className="eyebrow">Acesso</p>
+        <h2>Login</h2>
+        {error && <div className="notice error">{error}</div>}
+        <form className="form-stack" onSubmit={handleSubmit}>
+          <label>
+            E-mail
+            <input name="email" type="email" value={form.email} onChange={updateField} required autoComplete="email" />
+          </label>
+          <label>
+            Senha
+            <input name="senha" type="password" value={form.senha} onChange={updateField} required autoComplete="current-password" />
+          </label>
+          <button className="primary-button" type="submit" disabled={loading}>
+            {loading ? 'Entrando...' : 'Entrar'}
+          </button>
+        </form>
+        <p className="auth-switch">Nao tem conta? <Link to="/cadastro">Criar cadastro</Link></p>
+      </section>
+    </main>
+  );
 }
+
+export default Login;

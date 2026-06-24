@@ -1,116 +1,72 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import '../Login/Login.css';
+import { useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import logo from '../../assets/logo_nobg.png';
+import { useAuth } from '../../context/useAuth';
 
-export default function Register() {
-    const navigate = useNavigate();
+function Register() {
+  const navigate = useNavigate();
+  const { login, register } = useAuth();
+  const [form, setForm] = useState({ nome: '', nickname: '', email: '', senha: '', confirmarSenha: '' });
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
 
-    // Estados para capturar os inputs do formulário
-    const [fullName, setFullName] = useState('');
-    const [email, setEmail] = useState('');
-    const [password, setPassword] = useState('');
-    const [confirmPassword, setConfirmPassword] = useState('');
+  function updateField(event) {
+    setForm((current) => ({ ...current, [event.target.name]: event.target.value }));
+  }
 
-    const handleRegister = async (e) => {
-        e.preventDefault();
+  async function handleSubmit(event) {
+    event.preventDefault();
+    setError('');
 
-        if (password !== confirmPassword) {
-            alert("As senhas não coincidem!");
-            return;
-        }
+    if (form.senha !== form.confirmarSenha) {
+      setError('As senhas precisam ser iguais.');
+      return;
+    }
 
+    setLoading(true);
+    try {
+      await register({
+        nome: form.nome.trim(),
+        nickname: form.nickname.trim(),
+        email: form.email.trim(),
+        senha: form.senha,
+      });
+      await login({ email: form.email.trim(), senha: form.senha });
+      navigate('/dashboard', { replace: true });
+    } catch (apiError) {
+      setError(apiError.message || 'Nao foi possivel concluir o cadastro.');
+    } finally {
+      setLoading(false);
+    }
+  }
 
-        const novoUsuario = {
-            email: email,
-            senha: password,
-            perfil: "ROLE_USER" // 🌟 CORRIGIDO PARA BATER COM O ENUM DO JAVA
-        };
+  return (
+    <main className="auth-page">
+      <section className="auth-intro">
+        <img src={logo} alt="" />
+        <p className="eyebrow">Novo jogador</p>
+        <h1>Crie sua conta</h1>
+        <p>Monte seu perfil competitivo e acompanhe sua evolucao nos torneios.</p>
+      </section>
 
-        try {
-            // ⚠️ Certifique-se de alinhar a URL abaixo com a rota do seu Controller no Java (ex: /api/usuarios ou /auth/register)
-            const response = await fetch('http://localhost:8080/api/usuarios', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(novoUsuario),
-            });
-
-            if (response.ok) {
-                alert("Cadastro realizado com sucesso no MySQL!");
-                navigate('/login');
-            } else {
-                alert("Erro ao cadastrar. Verifique o console do Spring Boot.");
-            }
-        } catch (error) {
-            console.error("Erro na requisição:", error);
-            alert("Não foi possível conectar ao servidor backend.");
-        }
-    };
-
-    return (
-        <div className="auth-container">
-            <div className="auth-box" style={{ maxWidth: '550px' }}>
-                <div className="logo-section">
-                    <h1 className="logo-text">RANK IT UP!</h1>
-                </div>
-
-                <form onSubmit={handleRegister} className="auth-form">
-                    <h2 style={{ marginBottom: '30px' }}>Create Your Competitor Account</h2>
-
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px' }}>
-                        <div className="input-group">
-                            <label>Full Name</label>
-                            <input
-                                type="text"
-                                placeholder="John Doe"
-                                value={fullName}
-                                onChange={(e) => setFullName(e.target.value)}
-                                required
-                            />
-                        </div>
-
-                        <div className="input-group">
-                            <label>Password</label>
-                            <input
-                                type="password"
-                                placeholder="••••••••"
-                                value={password}
-                                onChange={(e) => setPassword(e.target.value)}
-                                required
-                            />
-                        </div>
-
-                        <div className="input-group">
-                            <label>Email Address</label>
-                            <input
-                                type="email"
-                                placeholder="alex.smith@example.com"
-                                value={email}
-                                onChange={(e) => setEmail(e.target.value)}
-                                required
-                            />
-                        </div>
-
-                        <div className="input-group">
-                            <label>Confirm Password</label>
-                            <input
-                                type="password"
-                                placeholder="••••••••"
-                                value={confirmPassword}
-                                onChange={(e) => setConfirmPassword(e.target.value)}
-                                required
-                            />
-                        </div>
-                    </div>
-
-                    <button type="submit" className="btn-gradient" style={{ marginTop: '20px' }}>Create Account</button>
-
-                    <p className="switch-auth" style={{ marginTop: '20px' }}>
-                        Already have an account? <span onClick={() => navigate('/login')}>Log in.</span>
-                    </p>
-                </form>
-            </div>
-        </div>
-    );
+      <section className="auth-card">
+        <p className="eyebrow">Cadastro</p>
+        <h2>Dados da conta</h2>
+        {error && <div className="notice error">{error}</div>}
+        <form className="form-grid" onSubmit={handleSubmit}>
+          <label>Nome<input name="nome" value={form.nome} onChange={updateField} required /></label>
+          <label>Nickname<input name="nickname" value={form.nickname} onChange={updateField} required /></label>
+          <label>E-mail<input name="email" type="email" value={form.email} onChange={updateField} required /></label>
+          <label>Senha<input name="senha" type="password" value={form.senha} onChange={updateField} minLength={6} required /></label>
+          <label>Confirmar senha<input name="confirmarSenha" type="password" value={form.confirmarSenha} onChange={updateField} minLength={6} required /></label>
+          <button className="primary-button span-all" type="submit" disabled={loading}>
+            {loading ? 'Criando...' : 'Criar conta'}
+          </button>
+        </form>
+        <p className="auth-switch">Ja tem conta? <Link to="/login">Entrar</Link></p>
+      </section>
+    </main>
+  );
 }
+
+export default Register;

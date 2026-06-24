@@ -1,40 +1,113 @@
-import React from 'react';
-import './Tournaments.css';
+import { useEffect, useMemo, useState } from 'react';
+import { Link } from 'react-router-dom';
+import { useAuth } from '../../context/useAuth';
+import { apiFetch } from '../../services/api';
 
-const Tournaments = () => {
-    return (
-        <div className="tournaments-wrapper">
-            <div className="max-w-5xl mx-auto">
-                <h1 className="text-4xl font-bold text-center mb-10 tracking-tight">Torneios Ativos</h1>
+const money = (value) => Number(value || 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+const date = (value) => (value ? new Intl.DateTimeFormat('pt-BR').format(new Date(value)) : 'Em aberto');
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    {/* Card Torneio 1 */}
-                    <div className="tournament-card rounded-2xl p-6 shadow-xl flex flex-col justify-between border">
-                        <div>
-                            <span className="bg-red-500 text-white text-xs font-bold px-3 py-1 rounded-full uppercase">Inscrições Abertas</span>
-                            <h2 className="text-2xl font-bold mt-3">Challenger de Valorant - Amador</h2>
-                            <p className="text-gray-400 text-sm mt-1">Premiação: R$ 1.500,00 + Troféu Virtual</p>
-                        </div>
-                        <button className="w-full mt-6 bg-purple-600 hover:bg-purple-700 text-white font-bold py-3 rounded-xl transition-all cursor-pointer">
-                            Inscrever Minha Equipe
-                        </button>
-                    </div>
+function Tournaments() {
+  const { user } = useAuth();
+  const isAdmin = user?.perfil === 'ROLE_ADMIN';
+  const [torneios, setTorneios] = useState([]);
+  const [jogos, setJogos] = useState([]);
+  const [inscricoes, setInscricoes] = useState([]);
+  const [search, setSearch] = useState('');
+  const [form, setForm] = useState({ nome: '', jogoId: '', premiacaoTotal: '' });
+  const [message, setMessage] = useState('');
 
-                    {/* Card Torneio 2 */}
-                    <div className="tournament-card rounded-2xl p-6 shadow-xl flex flex-col justify-between border">
-                        <div>
-                            <span className="bg-green-500 text-white text-xs font-bold px-3 py-1 rounded-full uppercase">Em Andamento</span>
-                            <h2 className="text-2xl font-bold mt-3">Copa das Lendas - League of Legends</h2>
-                            <p className="text-gray-400 text-sm mt-1">Premiação: 10.000 RP para o Squad</p>
-                        </div>
-                        <button className="w-full mt-6 bg-gray-500 text-white font-bold py-3 rounded-xl cursor-not-allowed opacity-60" disabled>
-                            Torneio Já Iniciado
-                        </button>
-                    </div>
-                </div>
-            </div>
+  async function loadData() {
+    const [torneiosData, jogosData, inscricoesData] = await Promise.all([
+      apiFetch('/api/torneios'),
+      apiFetch('/api/jogos'),
+      apiFetch('/api/inscricoes'),
+    ]);
+    setTorneios(Array.isArray(torneiosData) ? torneiosData : []);
+    setJogos(Array.isArray(jogosData) ? jogosData : []);
+    setInscricoes(Array.isArray(inscricoesData) ? inscricoesData : []);
+  }
+
+  useEffect(() => {
+    Promise.all([
+      apiFetch('/api/torneios'),
+      apiFetch('/api/jogos'),
+      apiFetch('/api/inscricoes'),
+    ])
+      .then(([torneiosData, jogosData, inscricoesData]) => {
+        setTorneios(Array.isArray(torneiosData) ? torneiosData : []);
+        setJogos(Array.isArray(jogosData) ? jogosData : []);
+        setInscricoes(Array.isArray(inscricoesData) ? inscricoesData : []);
+      })
+      .catch((error) => setMessage(error.message || 'Nao foi possivel carregar os torneios.'));
+  }, []);
+
+  const countByTournament = useMemo(() => inscricoes.reduce((acc, item) => {
+    const id = item.torneio?.idTorneio;
+    return id ? { ...acc, [id]: (acc[id] || 0) + 1 } : acc;
+  }, {}), [inscricoes]);
+
+  const filtered = torneios.filter((torneio) => {
+    const term = search.trim().toLowerCase();
+    return !term || torneio.nome?.toLowerCase().includes(term) || torneio.jogo?.titulo?.toLowerCase().includes(term);
+  });
+
+  async function handleCreate(event) {
+    event.preventDefault();
+    setMessage('');
+    await apiFetch('/api/torneios', {
+      method: 'POST',
+      body: {
+        nome: form.nome.trim(),
+        premiacaoTotal: Number(form.premiacaoTotal || 0),
+        jogo: { idJogo: Number(form.jogoId) },
+      },
+    });
+    setForm({ nome: '', jogoId: '', premiacaoTotal: '' });
+    setMessage('Torneio criado com sucesso.');
+    await loadData();
+  }
+
+  return (
+    <div className="content-stack">
+      <section className="page-heading">
+        <div>
+          <p className="eyebrow">Campeonatos</p>
+          <h1>Torneios</h1>
+          <p>Consulte campeonatos ativos, jogos e inscricoes.</p>
         </div>
-    );
-};
+        <label className="search-field">Buscar<input value={search} onChange={(event) => setSearch(event.target.value)} /></label>
+      </section>
+
+      {message && <div className="notice success">{message}</div>}
+
+      {isAdmin && (
+        <section className="panel">
+          <div className="panel-title"><div><p className="eyebrow">Organizacao</p><h2>Novo torneio</h2></div></div>
+          <form className="inline-form" onSubmit={handleCreate}>
+            <label>Nome<input value={form.nome} onChange={(event) => setForm({ ...form, nome: event.target.value })} required /></label>
+            <label>Jogo<select value={form.jogoId} onChange={(event) => setForm({ ...form, jogoId: event.target.value })} required><option value="">Selecione</option>{jogos.map((jogo) => <option key={jogo.idJogo} value={jogo.idJogo}>{jogo.titulo}</option>)}</select></label>
+            <label>Premiacao<input type="number" min="0" step="0.01" value={form.premiacaoTotal} onChange={(event) => setForm({ ...form, premiacaoTotal: event.target.value })} /></label>
+            <button className="primary-button" type="submit">Criar torneio</button>
+          </form>
+        </section>
+      )}
+
+      <section className="tournament-grid">
+        {filtered.map((torneio) => (
+          <article className="tournament-card" key={torneio.idTorneio}>
+            <div className="card-topline"><span>{torneio.jogo?.genero || 'JOGO'}</span><b>{countByTournament[torneio.idTorneio] || 0} inscricoes</b></div>
+            <h2>{torneio.nome}</h2>
+            <p>{torneio.jogo?.titulo || 'Modalidade'}</p>
+            <dl className="meta-grid">
+              <div><dt>Premiacao</dt><dd>{money(torneio.premiacaoTotal)}</dd></div>
+              <div><dt>Criado em</dt><dd>{date(torneio.dataCriacao)}</dd></div>
+            </dl>
+            <Link className="ghost-button full-width" to="/leaderboards">Ver ranking</Link>
+          </article>
+        ))}
+      </section>
+    </div>
+  );
+}
 
 export default Tournaments;
