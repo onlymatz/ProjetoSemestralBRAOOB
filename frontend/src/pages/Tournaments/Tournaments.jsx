@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../../context/useAuth';
 import { apiFetch } from '../../services/api';
@@ -15,8 +15,9 @@ function Tournaments() {
   const [search, setSearch] = useState('');
   const [form, setForm] = useState({ nome: '', jogoId: '', premiacaoTotal: '' });
   const [message, setMessage] = useState('');
+  const [error, setError] = useState('');
 
-  async function loadData() {
+  const loadData = useCallback(async () => {
     const [torneiosData, jogosData, inscricoesData] = await Promise.all([
       apiFetch('/api/torneios'),
       apiFetch('/api/jogos'),
@@ -25,21 +26,14 @@ function Tournaments() {
     setTorneios(Array.isArray(torneiosData) ? torneiosData : []);
     setJogos(Array.isArray(jogosData) ? jogosData : []);
     setInscricoes(Array.isArray(inscricoesData) ? inscricoesData : []);
-  }
+  }, []);
 
   useEffect(() => {
-    Promise.all([
-      apiFetch('/api/torneios'),
-      apiFetch('/api/jogos'),
-      apiFetch('/api/inscricoes'),
-    ])
-      .then(([torneiosData, jogosData, inscricoesData]) => {
-        setTorneios(Array.isArray(torneiosData) ? torneiosData : []);
-        setJogos(Array.isArray(jogosData) ? jogosData : []);
-        setInscricoes(Array.isArray(inscricoesData) ? inscricoesData : []);
-      })
-      .catch((error) => setMessage(error.message || 'Nao foi possivel carregar os torneios.'));
-  }, []);
+    const timeout = window.setTimeout(() => {
+      loadData().catch((apiError) => setError(apiError.message || 'Nao foi possivel carregar os torneios.'));
+    }, 0);
+    return () => window.clearTimeout(timeout);
+  }, [loadData]);
 
   const countByTournament = useMemo(() => inscricoes.reduce((acc, item) => {
     const id = item.torneio?.idTorneio;
@@ -54,17 +48,22 @@ function Tournaments() {
   async function handleCreate(event) {
     event.preventDefault();
     setMessage('');
-    await apiFetch('/api/torneios', {
-      method: 'POST',
-      body: {
-        nome: form.nome.trim(),
-        premiacaoTotal: Number(form.premiacaoTotal || 0),
-        jogo: { idJogo: Number(form.jogoId) },
-      },
-    });
-    setForm({ nome: '', jogoId: '', premiacaoTotal: '' });
-    setMessage('Torneio criado com sucesso.');
-    await loadData();
+    setError('');
+    try {
+      await apiFetch('/api/torneios', {
+        method: 'POST',
+        body: {
+          nome: form.nome.trim(),
+          premiacaoTotal: Number(form.premiacaoTotal || 0),
+          jogo: { idJogo: Number(form.jogoId) },
+        },
+      });
+      setForm({ nome: '', jogoId: '', premiacaoTotal: '' });
+      setMessage('Torneio criado com sucesso.');
+      await loadData();
+    } catch (apiError) {
+      setError(apiError.message || 'Nao foi possivel criar o torneio.');
+    }
   }
 
   return (
@@ -79,6 +78,7 @@ function Tournaments() {
       </section>
 
       {message && <div className="notice success">{message}</div>}
+      {error && <div className="notice error">{error}</div>}
 
       {isAdmin && (
         <section className="panel">

@@ -8,6 +8,8 @@
   --cyan: #22d3ee;
   --violet: #8b5cf6;
   --green: #34d399;
+  --amber: #fbbf24;
+  --blue: #38bdf8;
   --red: #fb7185;
   --radius: 8px;
 }
@@ -23,8 +25,9 @@ button { border: 0; }
   overflow-x: hidden;
   color: var(--text);
   background:
-    radial-gradient(circle at 80% 12%, rgba(139, 92, 246, 0.24), transparent 28%),
-    radial-gradient(circle at 14% 4%, rgba(34, 211, 238, 0.16), transparent 28%),
+    linear-gradient(180deg, rgba(8, 10, 18, .86), rgba(8, 10, 18, .98)),
+    radial-gradient(circle at 78% 10%, rgba(56, 189, 248, 0.14), transparent 27%),
+    radial-gradient(circle at 12% 0%, rgba(52, 211, 153, 0.12), transparent 26%),
     var(--bg);
 }
 
@@ -45,21 +48,22 @@ button { border: 0; }
 .global-header {
   width: min(1180px, calc(100% - 32px));
   margin: 0 auto;
-  padding: 16px 0;
+  padding: 14px 0;
   display: grid;
-  grid-template-columns: auto 1fr auto;
+  grid-template-columns: auto minmax(0, 1fr) auto;
   align-items: center;
-  gap: 20px;
+  gap: 16px;
 }
 .brand-lockup, .primary-nav, .header-actions { display: flex; align-items: center; }
 .brand-lockup { gap: 10px; font-size: 1.1rem; }
 .brand-lockup img { width: 40px; height: 40px; object-fit: contain; }
-.primary-nav { justify-content: center; flex-wrap: wrap; gap: 8px; }
+.primary-nav { justify-content: center; flex-wrap: wrap; gap: 6px; }
 .nav-link, .header-actions span {
-  padding: 9px 12px;
+  padding: 8px 10px;
   border: 1px solid transparent;
   border-radius: var(--radius);
   color: var(--muted);
+  font-size: .92rem;
 }
 .nav-link:hover, .nav-link.active { color: white; border-color: var(--line); background: rgba(255,255,255,.06); }
 .header-actions { justify-content: end; gap: 10px; }
@@ -79,6 +83,11 @@ button { border: 0; }
   gap: 24px;
   padding: 28px;
 }
+.compact-heading {
+  background:
+    linear-gradient(135deg, rgba(52, 211, 153, .09), rgba(56, 189, 248, .08)),
+    var(--surface);
+}
 .page-heading h1, .auth-intro h1, .profile-hero h1 { margin: 4px 0 8px; font-size: clamp(2rem, 4vw, 3.5rem); line-height: 1; }
 .page-heading p, .auth-intro p, .profile-hero p { margin: 0; color: var(--muted); line-height: 1.7; }
 .eyebrow { margin: 0; color: var(--cyan); font-size: .76rem; font-weight: 900; letter-spacing: .12em; text-transform: uppercase; }
@@ -96,14 +105,27 @@ button { border: 0; }
 }
 .primary-button { background: linear-gradient(135deg, var(--violet), #0ea5e9); }
 .ghost-button { border: 1px solid var(--line); background: rgba(255,255,255,.06); }
+.hero-actions { display: flex; flex-wrap: wrap; gap: 10px; }
 .full-width { width: 100%; }
 
-.stats-grid, .dashboard-grid, .tournament-grid, .profile-grid { display: grid; gap: 16px; }
+.stats-grid, .dashboard-grid, .tournament-grid, .profile-grid, .workflow-grid { display: grid; gap: 16px; }
 .stats-grid { grid-template-columns: repeat(4, 1fr); }
 .dashboard-grid { grid-template-columns: repeat(2, 1fr); }
 .tournament-grid { grid-template-columns: repeat(3, 1fr); }
 .profile-grid { grid-template-columns: repeat(4, 1fr); }
-.stat-card, .panel, .tournament-card, .profile-item { padding: 20px; }
+.workflow-grid { grid-template-columns: repeat(4, 1fr); }
+.stat-card, .panel, .tournament-card, .profile-item, .workflow-card { padding: 20px; }
+.workflow-card {
+  display: grid;
+  gap: 10px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: rgba(255,255,255,.055);
+}
+.workflow-card:hover { border-color: rgba(56,189,248,.45); background: rgba(56,189,248,.075); }
+.workflow-card span { color: var(--amber); font-size: .76rem; font-weight: 900; }
+.workflow-card strong { font-size: 1.05rem; }
+.workflow-card small { color: var(--muted); line-height: 1.5; }
 .stat-card span, .profile-item span, .card-topline, .meta-grid dt {
   color: var(--muted); font-size: .78rem; font-weight: 900; letter-spacing: .08em; text-transform: uppercase;
 }
@@ -134,6 +156,8 @@ button { border: 0; }
 .data-table th { color: var(--muted); font-size: .76rem; letter-spacing: .08em; text-transform: uppercase; }
 .status-pill { padding: 6px 10px; border-radius: var(--radius); background: rgba(255,255,255,.08); font-weight: 800; font-size: .8rem; }
 .status-APROVADO { color: #bbf7d0; background: rgba(52,211,153,.14); }
+.status-PENDENTE { color: #fde68a; background: rgba(251,191,36,.14); }
+.status-REJEITADO { color: #fecdd3; background: rgba(251,113,133,.14); }
 
 .tournament-card { display: grid; gap: 14px; }
 .card-topline { display: flex; justify-content: space-between; gap: 12px; }
@@ -178,12 +202,115 @@ input, select {
 .notice.error { color: #fecdd3; background: rgba(251,113,133,.12); border: 1px solid rgba(251,113,133,.35); }
 .notice.success { color: #bbf7d0; background: rgba(52,211,153,.12); border: 1px solid rgba(52,211,153,.35); }
 
+.studio-heading {
+  background:
+    linear-gradient(135deg, rgba(34, 211, 238, .14), rgba(139, 92, 246, .1)),
+    var(--surface);
+}
+.summary-strip {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(110px, 1fr));
+  gap: 10px;
+  min-width: min(100%, 320px);
+}
+.summary-strip span {
+  padding: 12px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: rgba(255,255,255,.06);
+  color: var(--cyan);
+  font-weight: 900;
+  text-align: center;
+}
+.studio-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+}
+.form-card {
+  padding: 20px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background:
+    linear-gradient(180deg, rgba(255,255,255,.055), rgba(255,255,255,.025)),
+    var(--surface);
+  box-shadow: 0 20px 60px rgba(0,0,0,.3);
+}
+.form-card h2 {
+  margin: 4px 0 18px;
+  font-size: 1.25rem;
+}
+.form-card .primary-button:disabled {
+  cursor: not-allowed;
+  opacity: .45;
+  filter: grayscale(.4);
+}
+
+.management-grid, .split-grid, .podium-grid {
+  display: grid;
+  gap: 16px;
+}
+.management-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); align-items: start; }
+.split-grid { grid-template-columns: 1.35fr .9fr; }
+.podium-grid { grid-template-columns: repeat(3, 1fr); }
+.podium-card, .catalog-card, .approval-row, .team-row {
+  border: 1px solid rgba(255,255,255,.09);
+  border-radius: var(--radius);
+  background: rgba(255,255,255,.045);
+}
+.podium-card {
+  padding: 20px;
+  display: grid;
+  gap: 8px;
+  min-height: 150px;
+}
+.podium-card span { color: var(--amber); font-weight: 900; }
+.podium-card h2 { margin: 0; font-size: 1.25rem; }
+.podium-card p { margin: 0; color: var(--muted); }
+.podium-card strong { color: var(--green); font-size: 1.4rem; }
+.catalog-grid, .team-list, .approval-list {
+  display: grid;
+  gap: 10px;
+}
+.catalog-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.catalog-card {
+  padding: 15px;
+  display: grid;
+  gap: 8px;
+}
+.catalog-card span {
+  color: var(--blue);
+  font-size: .76rem;
+  font-weight: 900;
+}
+.catalog-card strong { font-size: 1.05rem; }
+.catalog-card small, .team-row small, .approval-row small, .panel-footnote, .empty-state { color: var(--muted); }
+.team-row, .approval-row {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  align-items: center;
+  gap: 12px;
+  padding: 13px;
+}
+.team-row b {
+  display: grid;
+  place-items: center;
+  width: 54px;
+  height: 42px;
+  border-radius: var(--radius);
+  background: rgba(52,211,153,.13);
+  color: #bbf7d0;
+}
+.approval-row { grid-template-columns: 1fr auto; }
+.row-actions { display: flex; flex-wrap: wrap; gap: 8px; justify-content: flex-end; }
+.panel-footnote { margin: 16px 0 0; line-height: 1.6; }
+
 .profile-hero { justify-content: flex-start; align-items: center; }
 .profile-avatar { display: grid; place-items: center; width: 112px; height: 112px; border-radius: var(--radius); background: linear-gradient(135deg, var(--violet), rgba(34,211,238,.35)); font-size: 2rem; font-weight: 900; }
 .profile-item strong { display: block; margin-top: 18px; font-size: 1.2rem; }
 
 @media (max-width: 900px) {
-  .global-header, .auth-page, .stats-grid, .dashboard-grid, .tournament-grid, .profile-grid, .inline-form { grid-template-columns: 1fr; }
+  .global-header, .auth-page, .stats-grid, .dashboard-grid, .tournament-grid, .profile-grid, .inline-form, .studio-grid, .workflow-grid, .management-grid, .split-grid, .podium-grid, .catalog-grid { grid-template-columns: 1fr; }
   .primary-nav, .brand-lockup, .header-actions { justify-content: center; }
   .page-heading, .hero-panel, .profile-hero { align-items: flex-start; flex-direction: column; }
   .auth-intro { text-align: center; }

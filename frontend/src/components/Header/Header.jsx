@@ -6,6 +6,9 @@ const links = [
   { to: '/dashboard', label: 'Visao geral' },
   { to: '/leaderboards', label: 'Ranking' },
   { to: '/tournaments', label: 'Torneios' },
+  { to: '/games', label: 'Jogos' },
+  { to: '/matches', label: 'Partidas' },
+  { to: '/studio', label: 'Criar dados' },
   { to: '/perfil', label: 'Perfil' },
 ];
 

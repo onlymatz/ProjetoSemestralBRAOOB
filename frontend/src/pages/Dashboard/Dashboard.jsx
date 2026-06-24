@@ -73,7 +73,10 @@ function Dashboard() {
           <h1>Painel competitivo</h1>
           <p>Acompanhe torneios, jogadores, partidas e ranking com dados atualizados.</p>
         </div>
-        <Link className="primary-button" to="/tournaments">Ver torneios</Link>
+        <div className="hero-actions">
+          <Link className="primary-button" to="/matches">Registrar partida</Link>
+          <Link className="ghost-button" to="/tournaments">Ver torneios</Link>
+        </div>
       </section>
 
       {error && <div className="notice error">{error}</div>}
@@ -83,6 +86,13 @@ function Dashboard() {
         <StatCard label="Jogos" value={loading ? '...' : data.jogos.length} detail="modalidades" />
         <StatCard label="Inscricoes" value={loading ? '...' : data.inscricoes.length} detail="aprovadas e pendentes" />
         <StatCard label="Partidas" value={loading ? '...' : data.partidas.length} detail={`${data.jogadores.length} jogadores`} />
+      </section>
+
+      <section className="workflow-grid">
+        <Link className="workflow-card" to="/tournaments"><span>REQ-17</span><strong>Gerir torneios</strong><small>Criar campeonatos e acompanhar inscricoes.</small></Link>
+        <Link className="workflow-card" to="/matches"><span>REQ-07</span><strong>Registrar partidas</strong><small>Adicionar confrontos e processar resultados.</small></Link>
+        <Link className="workflow-card" to="/leaderboards"><span>REQ-19</span><strong>Ranking por torneio</strong><small>Classificacao isolada e ordenada por pontos.</small></Link>
+        <Link className="workflow-card" to="/games"><span>REQ-08</span><strong>Jogos e equipes</strong><small>Base para jogadores e competicoes.</small></Link>
       </section>
 
       <section className="dashboard-grid">
