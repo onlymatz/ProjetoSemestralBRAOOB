@@ -1,8 +1,0 @@
-@import "tailwindcss";
-
-.perfil-wrapper {
-    min-height: 100vh;
-    background-color: #111827 !important;
-    color: #ffffff !important;
-    padding: 2rem;
-}
