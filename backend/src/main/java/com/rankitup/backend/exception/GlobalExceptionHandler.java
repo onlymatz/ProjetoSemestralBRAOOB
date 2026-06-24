@@ -24,12 +24,12 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(DataIntegrityViolationException.class)
-    public ResponseEntity<Map<String, Object>> handleDataIntegrity(DataIntegrityViolationException ex) {
+    public ResponseEntity<Map<String, Object>> handleDataIntegrity() {
         return buildResponse(HttpStatus.CONFLICT, "Dados duplicados ou invalidos para cadastro.");
     }
 
     @ExceptionHandler(RuntimeException.class)
-    public ResponseEntity<Map<String, Object>> handleRuntime(RuntimeException ex) {
+    public ResponseEntity<Map<String, Object>> handleRuntime() {
         return buildResponse(HttpStatus.INTERNAL_SERVER_ERROR, "Erro interno do servidor.");
     }
 

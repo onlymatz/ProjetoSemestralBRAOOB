@@ -37,8 +37,8 @@ public class UsuarioService {
         PerfilUsuario perfil;
         try {
             perfil = PerfilUsuario.valueOf(dto.perfil());
-        } catch (IllegalArgumentException e) {
-            throw new IllegalArgumentException("Perfil de usuario invalido.");
+        } catch (IllegalArgumentException ex) {
+            throw new IllegalArgumentException("Perfil de usuario invalido.", ex);
         }
 
         Usuario novoUsuario = switch (perfil) {
