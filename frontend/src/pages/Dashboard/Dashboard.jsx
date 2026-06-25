@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
+import { useAuth } from '../../context/useAuth';
 import { apiFetch } from '../../services/api';
 
 const emptyData = { torneios: [], inscricoes: [], jogos: [], jogadores: [], equipes: [], partidas: [] };
@@ -18,6 +19,8 @@ function StatCard({ label, value, detail }) {
 }
 
 function Dashboard() {
+  const { user } = useAuth();
+  const isAdmin = user?.perfil === 'ROLE_ADMIN';
   const [data, setData] = useState(emptyData);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -74,8 +77,8 @@ function Dashboard() {
           <p>Acompanhe torneios, jogadores, partidas e ranking com dados atualizados.</p>
         </div>
         <div className="hero-actions">
-          <Link className="primary-button" to="/matches">Registrar partida</Link>
-          <Link className="ghost-button" to="/tournaments">Ver torneios</Link>
+          {isAdmin && <Link className="primary-button" to="/matches">Registrar partida</Link>}
+          <Link className={isAdmin ? 'ghost-button' : 'primary-button'} to="/tournaments">Ver torneios</Link>
         </div>
       </section>
 
@@ -89,10 +92,10 @@ function Dashboard() {
       </section>
 
       <section className="workflow-grid">
-        <Link className="workflow-card" to="/tournaments"><span>REQ-17</span><strong>Gerir torneios</strong><small>Criar campeonatos e acompanhar inscricoes.</small></Link>
-        <Link className="workflow-card" to="/matches"><span>REQ-07</span><strong>Registrar partidas</strong><small>Adicionar confrontos e processar resultados.</small></Link>
-        <Link className="workflow-card" to="/leaderboards"><span>REQ-19</span><strong>Ranking por torneio</strong><small>Classificacao isolada e ordenada por pontos.</small></Link>
-        <Link className="workflow-card" to="/games"><span>REQ-08</span><strong>Jogos e equipes</strong><small>Base para jogadores e competicoes.</small></Link>
+        <Link className="workflow-card" to="/tournaments"><span>Torneios</span><strong>Campeonatos ativos</strong><small>Consulte jogos, premios e inscricoes.</small></Link>
+        {isAdmin && <Link className="workflow-card" to="/matches"><span>Resultados</span><strong>Registrar partidas</strong><small>Adicione confrontos e atualize o ranking.</small></Link>}
+        <Link className="workflow-card" to="/leaderboards"><span>Ranking</span><strong>Classificacao</strong><small>Acompanhe pontuacoes por torneio.</small></Link>
+        {isAdmin && <Link className="workflow-card" to="/games"><span>Catalogo</span><strong>Jogos e equipes</strong><small>Gerencie modalidades e times.</small></Link>}
       </section>
 
       <section className="dashboard-grid">

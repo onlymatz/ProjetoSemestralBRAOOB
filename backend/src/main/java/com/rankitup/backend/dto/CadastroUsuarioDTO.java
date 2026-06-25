@@ -2,8 +2,8 @@ package com.rankitup.backend.dto;
 
 public record CadastroUsuarioDTO(
     String email,
-    String senha,  // texto puro
-    String perfil, //Role
+    String senha,
+    String perfil,
     String nome,
     String nickname
 ) { }

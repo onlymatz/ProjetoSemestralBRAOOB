@@ -3,6 +3,7 @@ package com.rankitup.backend.controller;
 import com.rankitup.backend.model.Administrador;
 import com.rankitup.backend.model.Torneio;
 import com.rankitup.backend.repository.AdministradorRepository;
+import com.rankitup.backend.repository.JogoRepository;
 import com.rankitup.backend.repository.TorneioRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -18,6 +19,7 @@ public class TorneioController {
 
     private final TorneioRepository torneioRepository;
     private final AdministradorRepository administradorRepository;
+    private final JogoRepository jogoRepository;
 
     @GetMapping
     public List<Torneio> listarTodos() {
@@ -37,5 +39,45 @@ public class TorneioController {
 
         novoTorneio.setCriador(criador);
         return ResponseEntity.ok(torneioRepository.save(novoTorneio));
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<Torneio> atualizar(@PathVariable Long id,
+                                             @RequestBody Torneio dadosAtualizados,
+                                             Authentication authentication) {
+        Torneio torneio = torneioRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Torneio nao encontrado."));
+
+        String emailAdmin = authentication.getName();
+        if (!torneio.getCriador().getEmail().equals(emailAdmin)) {
+            throw new SecurityException("Apenas o criador pode editar este torneio.");
+        }
+
+        if (dadosAtualizados.getNome() != null && !dadosAtualizados.getNome().isBlank()) {
+            torneio.setNome(dadosAtualizados.getNome());
+        }
+        if (dadosAtualizados.getPremiacaoTotal() != null) {
+            torneio.setPremiacaoTotal(dadosAtualizados.getPremiacaoTotal());
+        }
+        if (dadosAtualizados.getJogo() != null && dadosAtualizados.getJogo().getIdJogo() != null) {
+            torneio.setJogo(jogoRepository.findById(dadosAtualizados.getJogo().getIdJogo())
+                    .orElseThrow(() -> new IllegalArgumentException("Jogo nao encontrado.")));
+        }
+
+        return ResponseEntity.ok(torneioRepository.save(torneio));
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<String> excluir(@PathVariable Long id, Authentication authentication) {
+        Torneio torneio = torneioRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Torneio nao encontrado."));
+
+        String emailAdmin = authentication.getName();
+        if (!torneio.getCriador().getEmail().equals(emailAdmin)) {
+            throw new SecurityException("Apenas o criador pode excluir este torneio.");
+        }
+
+        torneioRepository.deleteById(id);
+        return ResponseEntity.ok("Torneio excluido com sucesso.");
     }
 }

@@ -47,6 +47,9 @@ public class Inscricao {
     @Column(name = "vitorias_totais")
     private Integer vitoriasTotais = 0;
 
+    @Column(name = "partidas_totais")
+    private Integer partidasTotais = 0;
+
     @Column(name = "saldo_kills")
     private Integer saldoKills = 0;
 }

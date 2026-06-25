@@ -1,9 +1,13 @@
 package com.rankitup.backend.controller;
 
 import com.rankitup.backend.dto.ResultadoPartidaDTO;
+import com.rankitup.backend.model.DesempenhoPartida;
+import com.rankitup.backend.model.DesempenhoPartidaId;
 import com.rankitup.backend.model.Inscricao;
 import com.rankitup.backend.model.Partida;
+import com.rankitup.backend.model.enums.Resultado;
 import com.rankitup.backend.model.enums.StatusInscricao;
+import com.rankitup.backend.repository.DesempenhoPartidaRepository;
 import com.rankitup.backend.repository.InscricaoRepository;
 import com.rankitup.backend.repository.PartidaRepository;
 import com.rankitup.backend.service.RankingService;
@@ -24,6 +28,7 @@ public class PartidaController {
     private final PartidaRepository partidaRepository;
     private final InscricaoRepository inscricaoRepository;
     private final RankingService rankingService;
+    private final DesempenhoPartidaRepository desempenhoRepository;
 
     @GetMapping
     public List<Partida> listarTodas() {
@@ -35,7 +40,6 @@ public class PartidaController {
         return ResponseEntity.ok(partidaRepository.save(novaPartida));
     }
 
-    // Atualiza a fase do torneio de uma partida existente (REQ-10)
     @PutMapping("/{id}")
     public ResponseEntity<?> atualizar(@PathVariable Long id,
                                        @RequestBody Partida dadosAtualizados,
@@ -59,11 +63,9 @@ public class PartidaController {
         return ResponseEntity.ok(partidaRepository.save(partida));
     }
 
-    // Exclui uma partida e reverte o Elo dos jogadores envolvidos (REQ-10)
     @Transactional
     @DeleteMapping("/{id}")
     public ResponseEntity<?> excluir(@PathVariable Long id,
-                                     @RequestBody ResultadoPartidaDTO dto,
                                      Authentication authentication) {
 
         Partida partida = partidaRepository.findById(id)
@@ -77,16 +79,26 @@ public class PartidaController {
                     .body("Apenas o organizador deste torneio pode excluir partidas.");
         }
 
-        Inscricao inscricaoA = inscricaoRepository.findById(dto.idInscricaoA())
-                .orElseThrow(() -> new IllegalArgumentException("Inscrição A não encontrada."));
-        Inscricao inscricaoB = inscricaoRepository.findById(dto.idInscricaoB())
-                .orElseThrow(() -> new IllegalArgumentException("Inscrição B não encontrada."));
+        // Busca os dois participantes pelo banco — sem precisar de body na requisição
+        List<DesempenhoPartida> desempenhos = desempenhoRepository.findByPartida_IdPartida(id);
 
-        // Reprocessa o Elo invertendo o resultado — anula o efeito da partida
-        rankingService.processarDuelo(inscricaoA, inscricaoB,
-                rankingService.inverterResultado(dto.resultadoA()));
+        if (desempenhos.size() == 2) {
+            DesempenhoPartida dpA = desempenhos.get(0);
+            DesempenhoPartida dpB = desempenhos.get(1);
 
-        inscricaoRepository.saveAll(List.of(inscricaoA, inscricaoB));
+            Inscricao inscricaoA = inscricaoRepository.findById(dpA.getInscricao().getIdInscricao())
+                    .orElseThrow(() -> new IllegalArgumentException("Inscrição A não encontrada."));
+            Inscricao inscricaoB = inscricaoRepository.findById(dpB.getInscricao().getIdInscricao())
+                    .orElseThrow(() -> new IllegalArgumentException("Inscrição B não encontrada."));
+
+            // Reverte o Elo invertendo o resultado original do jogador A
+            rankingService.processarDuelo(inscricaoA, inscricaoB,
+                    rankingService.inverterResultado(dpA.getResultado()));
+
+            inscricaoRepository.saveAll(List.of(inscricaoA, inscricaoB));
+        }
+
+        desempenhoRepository.deleteAll(desempenhos);
         partidaRepository.deleteById(id);
 
         return ResponseEntity.ok("Partida excluída e rankings revertidos.");
@@ -125,9 +137,34 @@ public class PartidaController {
             return ResponseEntity.badRequest().body("Jogador B não tem inscrição aprovada neste torneio.");
         }
 
+        if (!inscricaoA.getTorneio().getIdTorneio().equals(partida.getTorneio().getIdTorneio())
+                || !inscricaoB.getTorneio().getIdTorneio().equals(partida.getTorneio().getIdTorneio())) {
+            return ResponseEntity.badRequest().body("Os jogadores precisam estar inscritos no torneio desta partida.");
+        }
+        if (!desempenhoRepository.findByPartida_IdPartida(id).isEmpty()) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).body("Esta partida ja possui resultado registrado.");
+        }
+
         rankingService.processarDuelo(inscricaoA, inscricaoB, dto.resultadoA());
         inscricaoRepository.saveAll(List.of(inscricaoA, inscricaoB));
+        desempenhoRepository.saveAll(List.of(
+                criarDesempenho(partida, inscricaoA, dto.resultadoA()),
+                criarDesempenho(partida, inscricaoB, rankingService.inverterResultado(dto.resultadoA()))
+        ));
 
         return ResponseEntity.ok("Resultado registrado e rankings atualizados.");
+    }
+
+    private DesempenhoPartida criarDesempenho(Partida partida, Inscricao inscricao, Resultado resultado) {
+        DesempenhoPartida desempenho = new DesempenhoPartida();
+        DesempenhoPartidaId desempenhoId = new DesempenhoPartidaId();
+        desempenhoId.setIdPartida(partida.getIdPartida());
+        desempenhoId.setIdInscricao(inscricao.getIdInscricao());
+        desempenho.setId(desempenhoId);
+        desempenho.setPartida(partida);
+        desempenho.setInscricao(inscricao);
+        desempenho.setResultado(resultado);
+        desempenho.setScoreIndividual(resultado == Resultado.VITORIA ? 1 : 0);
+        return desempenho;
     }
 }

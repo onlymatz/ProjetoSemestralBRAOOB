@@ -41,6 +41,11 @@ public class UsuarioService {
             throw new IllegalArgumentException("Perfil de usuario invalido.", ex);
         }
 
+        // Apenas ROLE_USER pode ser criado pelo cadastro público
+        if (perfil != PerfilUsuario.ROLE_USER) {
+            throw new IllegalArgumentException("Perfil não permitido no cadastro público.");
+        }
+
         Usuario novoUsuario = switch (perfil) {
             case ROLE_ADMIN, ROLE_SUPORTE -> new Administrador();
             case ROLE_USER -> {

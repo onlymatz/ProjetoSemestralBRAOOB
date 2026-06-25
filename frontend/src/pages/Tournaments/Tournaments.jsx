@@ -14,6 +14,7 @@ function Tournaments() {
   const [inscricoes, setInscricoes] = useState([]);
   const [search, setSearch] = useState('');
   const [form, setForm] = useState({ nome: '', jogoId: '', premiacaoTotal: '' });
+  const [editingId, setEditingId] = useState(null);
   const [message, setMessage] = useState('');
   const [error, setError] = useState('');
 
@@ -50,8 +51,8 @@ function Tournaments() {
     setMessage('');
     setError('');
     try {
-      await apiFetch('/api/torneios', {
-        method: 'POST',
+      await apiFetch(editingId ? `/api/torneios/${editingId}` : '/api/torneios', {
+        method: editingId ? 'PUT' : 'POST',
         body: {
           nome: form.nome.trim(),
           premiacaoTotal: Number(form.premiacaoTotal || 0),
@@ -59,10 +60,39 @@ function Tournaments() {
         },
       });
       setForm({ nome: '', jogoId: '', premiacaoTotal: '' });
-      setMessage('Torneio criado com sucesso.');
+      setEditingId(null);
+      setMessage(editingId ? 'Torneio atualizado com sucesso.' : 'Torneio criado com sucesso.');
       await loadData();
     } catch (apiError) {
       setError(apiError.message || 'Nao foi possivel criar o torneio.');
+    }
+  }
+
+  function editTournament(torneio) {
+    setEditingId(torneio.idTorneio);
+    setForm({
+      nome: torneio.nome || '',
+      jogoId: String(torneio.jogo?.idJogo || ''),
+      premiacaoTotal: String(torneio.premiacaoTotal || ''),
+    });
+    setMessage('');
+    setError('');
+  }
+
+  function cancelEdit() {
+    setEditingId(null);
+    setForm({ nome: '', jogoId: '', premiacaoTotal: '' });
+  }
+
+  async function deleteTournament(id) {
+    setMessage('');
+    setError('');
+    try {
+      await apiFetch(`/api/torneios/${id}`, { method: 'DELETE' });
+      setMessage('Torneio excluido com sucesso.');
+      await loadData();
+    } catch (apiError) {
+      setError(apiError.message || 'Nao foi possivel excluir o torneio. Verifique se ele possui inscricoes ou partidas.');
     }
   }
 
@@ -82,12 +112,13 @@ function Tournaments() {
 
       {isAdmin && (
         <section className="panel">
-          <div className="panel-title"><div><p className="eyebrow">Organizacao</p><h2>Novo torneio</h2></div></div>
+          <div className="panel-title"><div><p className="eyebrow">Organizacao</p><h2>{editingId ? 'Editar torneio' : 'Novo torneio'}</h2></div></div>
           <form className="inline-form" onSubmit={handleCreate}>
             <label>Nome<input value={form.nome} onChange={(event) => setForm({ ...form, nome: event.target.value })} required /></label>
             <label>Jogo<select value={form.jogoId} onChange={(event) => setForm({ ...form, jogoId: event.target.value })} required><option value="">Selecione</option>{jogos.map((jogo) => <option key={jogo.idJogo} value={jogo.idJogo}>{jogo.titulo}</option>)}</select></label>
             <label>Premiacao<input type="number" min="0" step="0.01" value={form.premiacaoTotal} onChange={(event) => setForm({ ...form, premiacaoTotal: event.target.value })} /></label>
-            <button className="primary-button" type="submit">Criar torneio</button>
+            <button className="primary-button" type="submit">{editingId ? 'Salvar' : 'Criar torneio'}</button>
+            {editingId && <button className="ghost-button" type="button" onClick={cancelEdit}>Cancelar</button>}
           </form>
         </section>
       )}
@@ -102,7 +133,11 @@ function Tournaments() {
               <div><dt>Premiacao</dt><dd>{money(torneio.premiacaoTotal)}</dd></div>
               <div><dt>Criado em</dt><dd>{date(torneio.dataCriacao)}</dd></div>
             </dl>
-            <Link className="ghost-button full-width" to="/leaderboards">Ver ranking</Link>
+            <div className="card-actions">
+              <Link className="ghost-button" to="/leaderboards">Ranking</Link>
+              {isAdmin && <button className="ghost-button" type="button" onClick={() => editTournament(torneio)}>Editar</button>}
+              {isAdmin && <button className="danger-button" type="button" onClick={() => deleteTournament(torneio.idTorneio)}>Excluir</button>}
+            </div>
           </article>
         ))}
       </section>

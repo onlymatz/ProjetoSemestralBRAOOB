@@ -1,20 +1,28 @@
 import { NavLink, useNavigate } from 'react-router-dom';
 import logo from '../../assets/logo_nobg.png';
+import ThemeToggle from '../../ThemeToggle';
 import { useAuth } from '../../context/useAuth';
 
-const links = [
+const userLinks = [
+  { to: '/dashboard', label: 'Visao geral' },
+  { to: '/leaderboards', label: 'Ranking' },
+  { to: '/tournaments', label: 'Torneios' },
+  { to: '/perfil', label: 'Perfil' },
+];
+
+const adminLinks = [
   { to: '/dashboard', label: 'Visao geral' },
   { to: '/leaderboards', label: 'Ranking' },
   { to: '/tournaments', label: 'Torneios' },
   { to: '/games', label: 'Jogos' },
   { to: '/matches', label: 'Partidas' },
-  { to: '/studio', label: 'Criar dados' },
   { to: '/perfil', label: 'Perfil' },
 ];
 
 function Header() {
   const navigate = useNavigate();
   const { logout, user } = useAuth();
+  const links = user?.perfil === 'ROLE_ADMIN' ? adminLinks : userLinks;
 
   function handleLogout() {
     logout();
@@ -37,7 +45,7 @@ function Header() {
       </nav>
 
       <div className="header-actions">
-        <span>{user?.perfil === 'ROLE_ADMIN' ? 'Admin' : 'Jogador'}</span>
+        <ThemeToggle />
         <button type="button" className="ghost-button" onClick={handleLogout}>Sair</button>
       </div>
     </header>

@@ -1,6 +1,6 @@
 # Rank It Up! — Documentação da API
 
-Base URL: `http://localhost:8080`
+Base URL: `http://localhost:8090`
 
 ---
 
@@ -25,14 +25,13 @@ Rotas públicas (não precisam de token): `POST /api/usuarios/cadastro`, `POST /
 ```json
 {
   "email": "jogador@email.com",
-  "senha": "123456",
+  "senha": "<senha>",
   "perfil": "ROLE_USER",
   "nome": "João Silva",
   "nickname": "joaosilva"
 }
 ```
 
-> Para admin, omita `nome` e `nickname` e use `"perfil": "ROLE_ADMIN"`.
 
 **Respostas:**
 | Status | Descrição |
@@ -49,7 +48,7 @@ Rotas públicas (não precisam de token): `POST /api/usuarios/cadastro`, `POST /
 ```json
 {
   "email": "jogador@email.com",
-  "senha": "123456"
+  "senha": "<senha>"
 }
 ```
 
@@ -119,7 +118,7 @@ eyJhbGciOiJIUzM4NCJ9.eyJzdWIiOiJqb2dhZG9yQGVtYWlsLmNvbSJ9...
   "nome": "João Atualizado",
   "nickname": "joao_novo",
   "fotoPerfil": "https://url-da-foto.com/foto.jpg",
-  "senha": "novasenha123"
+  "senha": "<nova-senha>"
 }
 ```
 
@@ -194,8 +193,7 @@ eyJhbGciOiJIUzM4NCJ9.eyJzdWIiOiJqb2dhZG9yQGVtYWlsLmNvbSJ9...
     "nome": "Torneio Verão",
     "premiacaoTotal": 1000.00,
     "dataCriacao": "2026-06-05T10:00:00",
-    "jogo": { "idJogo": 1, "titulo": "Counter-Strike 2", "genero": "FPS", "desenvolvedora": "Valve" },
-    "criador": { "idUsuario": 2, "email": "admin@email.com", "perfil": "ROLE_ADMIN" }
+    "jogo": { "idJogo": 1, "titulo": "Counter-Strike 2", "genero": "FPS", "desenvolvedora": "Valve" }
   }
 ]
 ```

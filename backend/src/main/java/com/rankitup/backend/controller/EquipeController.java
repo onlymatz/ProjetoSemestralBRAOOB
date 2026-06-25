@@ -25,4 +25,29 @@ public class EquipeController {
         Equipe equipeSalva = equipeRepository.save(novaEquipe);
         return ResponseEntity.ok(equipeSalva);
     }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<Equipe> atualizar(@PathVariable Long id, @RequestBody Equipe dadosAtualizados) {
+        Equipe equipe = equipeRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Equipe nao encontrada."));
+
+        if (dadosAtualizados.getNomeEquipe() != null && !dadosAtualizados.getNomeEquipe().isBlank()) {
+            equipe.setNomeEquipe(dadosAtualizados.getNomeEquipe());
+        }
+        if (dadosAtualizados.getTagEquipe() != null && !dadosAtualizados.getTagEquipe().isBlank()) {
+            equipe.setTagEquipe(dadosAtualizados.getTagEquipe());
+        }
+        equipe.setPaisOrigem(dadosAtualizados.getPaisOrigem());
+
+        return ResponseEntity.ok(equipeRepository.save(equipe));
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<String> excluir(@PathVariable Long id) {
+        if (!equipeRepository.existsById(id)) {
+            throw new IllegalArgumentException("Equipe nao encontrada.");
+        }
+        equipeRepository.deleteById(id);
+        return ResponseEntity.ok("Equipe excluida com sucesso.");
+    }
 }

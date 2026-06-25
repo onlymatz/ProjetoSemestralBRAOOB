@@ -28,7 +28,7 @@ function Perfil() {
 
       <section className="profile-grid">
         <article className="profile-item"><span>Nickname</span><strong>{jogador?.nickname || 'Sem nickname'}</strong></article>
-        <article className="profile-item"><span>Acesso</span><strong>{user?.perfil === 'ROLE_ADMIN' ? 'Administrador' : 'Jogador'}</strong></article>
+        <article className="profile-item"><span>Conta</span><strong>Perfil ativo</strong></article>
         <article className="profile-item"><span>Equipe</span><strong>{jogador?.equipe?.nomeEquipe || 'Sem equipe vinculada'}</strong></article>
         <article className="profile-item"><span>Status</span><strong>Conta ativa</strong></article>
       </section>

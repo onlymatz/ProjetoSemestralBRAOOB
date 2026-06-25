@@ -1,5 +1,6 @@
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
+import { ThemeProvider } from './context/ThemeContext';
 import { useAuth } from './context/useAuth';
 import Header from './components/Header/Header';
 import Dashboard from './pages/Dashboard/Dashboard';
@@ -9,13 +10,20 @@ import Login from './pages/Login/Login';
 import Matches from './pages/Matches/Matches';
 import Perfil from './pages/Perfil/Perfil';
 import Register from './pages/Register/Register';
-import Studio from './pages/Studio/Studio';
 import Tournaments from './pages/Tournaments/Tournaments';
 import './App.css';
 
 function ProtectedRoute({ children }) {
   const { isAuthenticated } = useAuth();
   return isAuthenticated ? children : <Navigate to="/login" replace />;
+}
+
+function AdminRoute({ children }) {
+  const { isAuthenticated, user } = useAuth();
+  if (!isAuthenticated) {
+    return <Navigate to="/login" replace />;
+  }
+  return user?.perfil === 'ROLE_ADMIN' ? children : <Navigate to="/dashboard" replace />;
 }
 
 function AppLayout({ children }) {
@@ -53,17 +61,17 @@ function AppRoutes() {
       <Route
         path="/games"
         element={(
-          <ProtectedRoute>
+          <AdminRoute>
             <AppLayout><Games /></AppLayout>
-          </ProtectedRoute>
+          </AdminRoute>
         )}
       />
       <Route
         path="/matches"
         element={(
-          <ProtectedRoute>
+          <AdminRoute>
             <AppLayout><Matches /></AppLayout>
-          </ProtectedRoute>
+          </AdminRoute>
         )}
       />
       <Route
@@ -82,14 +90,6 @@ function AppRoutes() {
           </ProtectedRoute>
         )}
       />
-      <Route
-        path="/studio"
-        element={(
-          <ProtectedRoute>
-            <AppLayout><Studio /></AppLayout>
-          </ProtectedRoute>
-        )}
-      />
       <Route path="*" element={<Navigate to="/dashboard" replace />} />
     </Routes>
   );
@@ -97,15 +97,17 @@ function AppRoutes() {
 
 function App() {
   return (
-    <AuthProvider>
-      <BrowserRouter>
-        <div className="app-shell">
-          <div className="parallax-layer parallax-grid" />
-          <div className="parallax-layer parallax-art" />
-          <AppRoutes />
-        </div>
-      </BrowserRouter>
-    </AuthProvider>
+    <ThemeProvider>
+      <AuthProvider>
+        <BrowserRouter>
+          <div className="app-shell">
+            <div className="parallax-layer parallax-grid" />
+            <div className="parallax-layer parallax-art" />
+            <AppRoutes />
+          </div>
+        </BrowserRouter>
+      </AuthProvider>
+    </ThemeProvider>
   );
 }
 

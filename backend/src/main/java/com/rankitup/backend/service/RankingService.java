@@ -7,13 +7,13 @@ import org.springframework.stereotype.Service;
 @Service
 public class RankingService {
 
-    // Problema 11 — fator K dinâmico
+    // Fator K dinâmico baseado no TOTAL DE PARTIDAS jogadas (não só vitórias)
     // Iniciantes (< 10 partidas): K=40 — mais volatilidade, sobem/descem rápido
     // Intermediários (10-30 partidas): K=32 — volatilidade média
     // Experientes (> 30 partidas): K=20 — mais estabilidade
-    private int calcularFatorK(int totalVitorias) {
-        if (totalVitorias < 10) return 40;
-        if (totalVitorias < 30) return 32;
+    private int calcularFatorK(int totalPartidas) {
+        if (totalPartidas < 10) return 40;
+        if (totalPartidas < 30) return 32;
         return 20;
     }
 
@@ -23,12 +23,16 @@ public class RankingService {
 
     public void processarDuelo(Inscricao inscricaoA, Inscricao inscricaoB, Resultado resultadoA) {
 
-        int ratingA = inscricaoA.getPontosAcumulados();
-        int ratingB = inscricaoB.getPontosAcumulados();
+        int ratingA = valorOuZero(inscricaoA.getPontosAcumulados());
+        int ratingB = valorOuZero(inscricaoB.getPontosAcumulados());
 
         // Fator K individual para cada jogador
-        int kA = calcularFatorK(inscricaoA.getVitoriasTotais());
-        int kB = calcularFatorK(inscricaoB.getVitoriasTotais());
+        int partidasA = valorOuZero(inscricaoA.getPartidasTotais());
+        int partidasB = valorOuZero(inscricaoB.getPartidasTotais());
+        int vitoriasA = valorOuZero(inscricaoA.getVitoriasTotais());
+        int vitoriasB = valorOuZero(inscricaoB.getVitoriasTotais());
+        int kA = calcularFatorK(partidasA);
+        int kB = calcularFatorK(partidasB);
 
         double expectativaA = calcularProbabilidadeVitoria(ratingA, ratingB);
         double expectativaB = calcularProbabilidadeVitoria(ratingB, ratingA);
@@ -41,13 +45,15 @@ public class RankingService {
 
         inscricaoA.setPontosAcumulados(Math.max(0, ratingA + variacaoA));
         if (resultadoA == Resultado.VITORIA) {
-            inscricaoA.setVitoriasTotais(inscricaoA.getVitoriasTotais() + 1);
+            inscricaoA.setVitoriasTotais(vitoriasA + 1);
         }
+        inscricaoA.setPartidasTotais(partidasA + 1);
 
         inscricaoB.setPontosAcumulados(Math.max(0, ratingB + variacaoB));
         if (inverterResultado(resultadoA) == Resultado.VITORIA) {
-            inscricaoB.setVitoriasTotais(inscricaoB.getVitoriasTotais() + 1);
+            inscricaoB.setVitoriasTotais(vitoriasB + 1);
         }
+        inscricaoB.setPartidasTotais(partidasB + 1);
     }
 
     public Resultado inverterResultado(Resultado resultado) {
@@ -64,5 +70,9 @@ public class RankingService {
             case EMPATE  -> 0.5;
             case DERROTA -> 0.0;
         };
+    }
+
+    private int valorOuZero(Integer valor) {
+        return valor == null ? 0 : valor;
     }
 }
