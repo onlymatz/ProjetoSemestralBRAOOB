@@ -3,4 +3,8 @@ package com.rankitup.backend.repository;
 import com.rankitup.backend.model.*;
 import org.springframework.data.jpa.repository.JpaRepository;
 
-public interface EquipeRepository extends JpaRepository<Equipe, Long> {}
+import java.util.Optional;
+
+public interface EquipeRepository extends JpaRepository<Equipe, Long> {
+    Optional<Equipe> findByTagEquipe(String tagEquipe);
+}
