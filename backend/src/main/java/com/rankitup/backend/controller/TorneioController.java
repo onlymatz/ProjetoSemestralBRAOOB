@@ -1,5 +1,6 @@
 package com.rankitup.backend.controller;
 
+import com.rankitup.backend.dto.TorneioResponseDTO;
 import com.rankitup.backend.model.Administrador;
 import com.rankitup.backend.model.Torneio;
 import com.rankitup.backend.repository.AdministradorRepository;
@@ -8,6 +9,7 @@ import com.rankitup.backend.repository.TorneioRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -22,14 +24,18 @@ public class TorneioController {
     private final JogoRepository jogoRepository;
 
     @GetMapping
-    public List<Torneio> listarTodos() {
-        return torneioRepository.findAll();
+    @Transactional(readOnly = true)
+    public List<TorneioResponseDTO> listarTodos() {
+        return torneioRepository.findAll().stream()
+                .map(TorneioResponseDTO::from)
+                .toList();
     }
 
     // Ao criar o torneio, vincula automaticamente o admin autenticado como criador
     @PostMapping
-    public ResponseEntity<?> cadastrar(@RequestBody Torneio novoTorneio,
-                                       Authentication authentication) {
+    @Transactional
+    public ResponseEntity<TorneioResponseDTO> cadastrar(@RequestBody Torneio novoTorneio,
+                                                        Authentication authentication) {
 
         // Pega o email do admin logado direto do token JWT
         String emailAdmin = authentication.getName();
@@ -37,14 +43,22 @@ public class TorneioController {
         Administrador criador = administradorRepository.findByEmail(emailAdmin)
                 .orElseThrow(() -> new RuntimeException("Administrador não encontrado."));
 
+        if (novoTorneio.getJogo() == null || novoTorneio.getJogo().getIdJogo() == null) {
+            throw new IllegalArgumentException("Jogo nao informado.");
+        }
+
         novoTorneio.setCriador(criador);
-        return ResponseEntity.ok(torneioRepository.save(novoTorneio));
+        novoTorneio.setJogo(jogoRepository.findById(novoTorneio.getJogo().getIdJogo())
+                .orElseThrow(() -> new IllegalArgumentException("Jogo nao encontrado.")));
+
+        return ResponseEntity.ok(TorneioResponseDTO.from(torneioRepository.save(novoTorneio)));
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Torneio> atualizar(@PathVariable Long id,
-                                             @RequestBody Torneio dadosAtualizados,
-                                             Authentication authentication) {
+    @Transactional
+    public ResponseEntity<TorneioResponseDTO> atualizar(@PathVariable Long id,
+                                                        @RequestBody Torneio dadosAtualizados,
+                                                        Authentication authentication) {
         Torneio torneio = torneioRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Torneio nao encontrado."));
 
@@ -64,10 +78,11 @@ public class TorneioController {
                     .orElseThrow(() -> new IllegalArgumentException("Jogo nao encontrado.")));
         }
 
-        return ResponseEntity.ok(torneioRepository.save(torneio));
+        return ResponseEntity.ok(TorneioResponseDTO.from(torneioRepository.save(torneio)));
     }
 
     @DeleteMapping("/{id}")
+    @Transactional
     public ResponseEntity<String> excluir(@PathVariable Long id, Authentication authentication) {
         Torneio torneio = torneioRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Torneio nao encontrado."));

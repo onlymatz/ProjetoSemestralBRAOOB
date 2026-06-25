@@ -1,5 +1,6 @@
 package com.rankitup.backend.controller;
 
+import com.rankitup.backend.dto.PartidaResponseDTO;
 import com.rankitup.backend.dto.ResultadoPartidaDTO;
 import com.rankitup.backend.model.DesempenhoPartida;
 import com.rankitup.backend.model.DesempenhoPartidaId;
@@ -10,6 +11,7 @@ import com.rankitup.backend.model.enums.StatusInscricao;
 import com.rankitup.backend.repository.DesempenhoPartidaRepository;
 import com.rankitup.backend.repository.InscricaoRepository;
 import com.rankitup.backend.repository.PartidaRepository;
+import com.rankitup.backend.repository.TorneioRepository;
 import com.rankitup.backend.service.RankingService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -29,18 +31,31 @@ public class PartidaController {
     private final InscricaoRepository inscricaoRepository;
     private final RankingService rankingService;
     private final DesempenhoPartidaRepository desempenhoRepository;
+    private final TorneioRepository torneioRepository;
 
     @GetMapping
-    public List<Partida> listarTodas() {
-        return partidaRepository.findAll();
+    @Transactional(readOnly = true)
+    public List<PartidaResponseDTO> listarTodas() {
+        return partidaRepository.findAll().stream()
+                .map(PartidaResponseDTO::from)
+                .toList();
     }
 
     @PostMapping
-    public ResponseEntity<Partida> cadastrar(@RequestBody Partida novaPartida) {
-        return ResponseEntity.ok(partidaRepository.save(novaPartida));
+    @Transactional
+    public ResponseEntity<PartidaResponseDTO> cadastrar(@RequestBody Partida novaPartida) {
+        if (novaPartida.getTorneio() == null || novaPartida.getTorneio().getIdTorneio() == null) {
+            throw new IllegalArgumentException("Torneio nao informado.");
+        }
+
+        novaPartida.setTorneio(torneioRepository.findById(novaPartida.getTorneio().getIdTorneio())
+                .orElseThrow(() -> new IllegalArgumentException("Torneio nao encontrado.")));
+
+        return ResponseEntity.ok(PartidaResponseDTO.from(partidaRepository.save(novaPartida)));
     }
 
     @PutMapping("/{id}")
+    @Transactional
     public ResponseEntity<?> atualizar(@PathVariable Long id,
                                        @RequestBody Partida dadosAtualizados,
                                        Authentication authentication) {
@@ -60,7 +75,7 @@ public class PartidaController {
             partida.setFaseTorneio(dadosAtualizados.getFaseTorneio());
         }
 
-        return ResponseEntity.ok(partidaRepository.save(partida));
+        return ResponseEntity.ok(PartidaResponseDTO.from(partidaRepository.save(partida)));
     }
 
     @Transactional

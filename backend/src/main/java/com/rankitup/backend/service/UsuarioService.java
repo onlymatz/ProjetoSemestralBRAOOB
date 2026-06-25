@@ -3,7 +3,6 @@ package com.rankitup.backend.service;
 import com.rankitup.backend.dto.AtualizarUsuarioDTO;
 import com.rankitup.backend.dto.CadastroUsuarioDTO;
 import com.rankitup.backend.dto.LoginDTO;
-import com.rankitup.backend.model.Administrador;
 import com.rankitup.backend.model.Jogador;
 import com.rankitup.backend.model.Usuario;
 import com.rankitup.backend.model.enums.PerfilUsuario;
@@ -46,21 +45,15 @@ public class UsuarioService {
             throw new IllegalArgumentException("Perfil não permitido no cadastro público.");
         }
 
-        Usuario novoUsuario = switch (perfil) {
-            case ROLE_ADMIN, ROLE_SUPORTE -> new Administrador();
-            case ROLE_USER -> {
-                validarCampo(dto.nome(), "Nome");
-                validarCampo(dto.nickname(), "Nickname");
-                if (jogadorRepository.findByNickname(dto.nickname()).isPresent()) {
-                    throw new IllegalArgumentException("Nickname ja cadastrado.");
-                }
+        validarCampo(dto.nome(), "Nome");
+        validarCampo(dto.nickname(), "Nickname");
+        if (jogadorRepository.findByNickname(dto.nickname()).isPresent()) {
+            throw new IllegalArgumentException("Nickname ja cadastrado.");
+        }
 
-                Jogador jogador = new Jogador();
-                jogador.setNome(dto.nome());
-                jogador.setNickname(dto.nickname());
-                yield jogador;
-            }
-        };
+        Jogador novoUsuario = new Jogador();
+        novoUsuario.setNome(dto.nome());
+        novoUsuario.setNickname(dto.nickname());
 
         novoUsuario.setEmail(dto.email());
         novoUsuario.setPerfil(perfil);
@@ -131,10 +124,6 @@ public class UsuarioService {
             throw new IllegalArgumentException("Usuario nao encontrado.");
         }
         usuarioRepository.deleteById(id);
-    }
-
-    public boolean verificarSenha(String senhaTexto, String hashArmazenado) {
-        return passwordEncoder.matches(senhaTexto, hashArmazenado);
     }
 
     private void validarCampo(String valor, String campo) {
