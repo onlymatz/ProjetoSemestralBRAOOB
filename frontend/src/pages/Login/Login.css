@@ -1,0 +1,107 @@
+.auth-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    background-color: var(--bg-primary);
+    padding: 20px;
+}
+.auth-box {
+    background-color: var(--bg-secondary);
+    border: 1px solid #1f2a3d;
+    border-radius: 16px;
+    width: 100%;
+    max-width: 450px;
+    padding: 40px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+}
+.logo-section {
+    text-align: center;
+    margin-bottom: 25px;
+}
+.logo-text {
+    font-size: 2.2rem;
+    color: #fff;
+    text-shadow: 0 0 12px var(--color-neon-blue);
+}
+.subtitle {
+    color: var(--text-muted);
+    font-size: 0.9rem;
+}
+.auth-form h2 {
+    text-align: center;
+    margin-bottom: 20px;
+    font-size: 1.5rem;
+}
+.input-group {
+    margin-bottom: 18px;
+}
+.input-group label {
+    display: block;
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    margin-bottom: 6px;
+}
+.input-group input {
+    width: 100%;
+    padding: 12px;
+    background-color: var(--bg-card);
+    border: 1px solid #2d3d57;
+    border-radius: 8px;
+    color: #fff;
+}
+.input-group input:focus {
+    outline: none;
+    border-color: var(--color-neon-blue);
+}
+.form-actions {
+    text-align: right;
+    margin-bottom: 20px;
+}
+.forgot-link {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    text-decoration: none;
+}
+.btn-gradient {
+    width: 100%;
+    padding: 14px;
+    border: none;
+    border-radius: 30px;
+    background: linear-gradient(90deg, var(--color-neon-purple), var(--color-neon-blue));
+    color: #fff;
+    font-weight: 600;
+    cursor: pointer;
+}
+.divider {
+    text-align: center;
+    margin: 20px 0;
+    font-size: 0.8rem;
+    color: var(--text-muted);
+}
+.social-icons {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+.social-btn {
+    flex: 1;
+    padding: 10px;
+    background: var(--bg-card);
+    border: 1px solid #2d3d57;
+    color: #fff;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 0.85rem;
+}
+.switch-auth {
+    text-align: center;
+    font-size: 0.9rem;
+    color: var(--text-muted);
+}
+.switch-auth span {
+    color: var(--color-neon-blue);
+    cursor: pointer;
+    font-weight: 500;
+}
