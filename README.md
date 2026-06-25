@@ -1,5 +1,4 @@
-
- 🏆 Rank It Up! - Sistema de Gestão de Torneios de e-Sports
+# 🏆 Rank It Up! - Sistema de Gestão de Torneios de e-Sports
 
 ![Rank It Up Logo](./frontend/src/assets/logo.png)
 
@@ -15,11 +14,11 @@ Para garantir a viabilidade técnica dentro do semestre letivo, a arquitetura do
 
 ## 👥 Integrantes da Equipe
 
-- **Eduardo Soares Lourenço Araujo** - BP3062643
-- **João Victor de Moraes Sant'Anna** - BP3062601
-- **João Vitor Oliveira Durães** - BP3061353
-- **Matheus da Silva Marcondes** - BP3061493
-- **Raul Ramos Cirilo da Silva** - BP3061558
+* **Eduardo Soares Lourenço Araujo** - BP3062643
+* **João Victor de Moraes Sant'Anna** - BP3062601
+* **João Vitor Oliveira Durães** - BP3061353
+* **Matheus da Silva Marcondes** - BP3061493
+* **Raul Ramos Cirilo da Silva** - BP3061558
 
 ---
 
@@ -27,17 +26,19 @@ Para garantir a viabilidade técnica dentro do semestre letivo, a arquitetura do
 
 O ecossistema do sistema está dividido em duas camadas principais totalmente desacopladas:
 
-**Backend (API RESTful):**
-- **Java 21 / Spring Boot:** Framework base para construção da API estável e escalável.
-- **Spring Security & JWT:** Controle rigoroso de autenticação e autorização por tokens para os organizadores.
-- **Spring Data JPA / Hibernate:** Abstração e persistência normalizada de dados.
-- **MySQL:** Banco de dados relacional para manutenção da integridade referencial.
-- **Maven:** Gerenciador de dependências e build.
+### Backend (API RESTful)
 
-**Frontend (Interface do Usuário):**
-- **React.js & Vite:** Ferramentas modernas para uma interface de alta performance e SPA (Single Page Application).
-- **Axios:** Cliente HTTP para consumo seguro dos endpoints da API.
-- **HTML5 / CSS3 / JavaScript (ES6+):** Estruturação e estilização moderna da interface.
+* **Java 21 / Spring Boot:** Framework base para construção da API estável e escalável.
+* **Spring Security & JWT:** Controle rigoroso de autenticação e autorização por tokens para os organizadores.
+* **Spring Data JPA / Hibernate:** Abstração e persistência normalizada de dados.
+* **MySQL:** Banco de dados relacional para manutenção da integridade referencial.
+* **Maven:** Gerenciador de dependências e build.
+
+### Frontend (Interface do Usuário)
+
+* **React.js & Vite:** Ferramentas modernas para uma interface de alta performance e SPA (Single Page Application).
+* **Axios:** Cliente HTTP para consumo seguro dos endpoints da API.
+* **HTML5 / CSS3 / JavaScript (ES6+):** Estruturação e estilização moderna da interface.
 
 ---
 
@@ -45,50 +46,125 @@ O ecossistema do sistema está dividido em duas camadas principais totalmente de
 
 A API do **Rank It Up!** foi projetada seguindo as restrições arquiteturais do modelo REST, garantindo recursos bem definidos, respostas em formato JSON e o uso correto dos métodos HTTP (GET, POST, PUT, DELETE). O núcleo da API está mapeado através dos seguintes controladores principais:
 
-1. **Autenticação e Usuários (`UsuarioController`)**
-   - Gerencia o ciclo de vida dos usuários (Organizadores e Administradores).
-   - Realiza o cadastro seguro e o endpoint de login, emitindo tokens **JWT (JSON Web Tokens)** para validar as requisições subsequentes e proteger rotas críticas.
+### 1. Autenticação e Usuários (`UsuarioController`)
 
-2. **Gerenciamento de Torneios e Inscrições (`TorneioController` & `InscricaoController`)**
-   - Criação, edição e listagem de múltiplos campeonatos simultâneos e independentes.
-   - Gerenciamento do status das inscrições das equipes em torneios específicos, mantendo o histórico e os critérios de validação de vagas.
+* Gerencia o ciclo de vida dos usuários (Organizadores e Administradores).
+* Realiza o cadastro seguro e o endpoint de login, emitindo tokens **JWT (JSON Web Tokens)** para validar as requisições subsequentes e proteger rotas críticas.
 
-3. **Cadastro de Jogos, Equipes e Atletas (`JogoController`, `EquipeController` & `JogadorController`)**
-   - Mapeamento das modalidades de e-Sports disponíveis (Gênero do jogo, regras base).
-   - Gerenciamento de entidades competitivas, permitindo a formação de elencos (lineups) ao vincular jogadores às suas respectivas equipes.
+### 2. Gerenciamento de Torneios e Inscrições (`TorneioController` & `InscricaoController`)
 
-4. **Partidas, Desempenhos e Atualização de Ranking (`PartidaController` & `DesempenhoPartidaController`)**
-   - Registro detalhado de confrontos dentro de um torneio, capturando placares e dados brutos de desempenho.
-   - **Mecanismo de Rating Elo:** Ao finalizar uma partida, o backend calcula automaticamente as mudanças na pontuação dos envolvidos de forma dinâmica. A variação considera a probabilidade de vitória com base no histórico de habilidade atual, aplicando uma lógica ponderada que atualiza instantaneamente a tabela de classificação geral.
+* Criação, edição e listagem de múltiplos campeonatos simultâneos e independentes.
+* Gerenciamento do status das inscrições das equipes em torneios específicos, mantendo o histórico e os critérios de validação de vagas.
+
+### 3. Cadastro de Jogos, Equipes e Atletas (`JogoController`, `EquipeController` & `JogadorController`)
+
+* Mapeamento das modalidades de e-Sports disponíveis (gênero do jogo, regras base).
+* Gerenciamento de entidades competitivas, permitindo a formação de elencos (lineups) ao vincular jogadores às suas respectivas equipes.
+
+### 4. Partidas, Desempenhos e Atualização de Ranking (`PartidaController` & `DesempenhoPartidaController`)
+
+* Registro detalhado de confrontos dentro de um torneio, capturando placares e dados brutos de desempenho.
+* **Mecanismo de Rating Elo:** Ao finalizar uma partida, o backend calcula automaticamente as mudanças na pontuação dos envolvidos de forma dinâmica. A variação considera a probabilidade de vitória com base no histórico de habilidade atual, aplicando uma lógica ponderada que atualiza instantaneamente a tabela de classificação geral.
 
 ---
 
 ## 🚀 Como Executar o Projeto
 
 ### Pré-requisitos
+
 Certifique-se de ter as seguintes ferramentas instaladas globalmente em sua máquina:
-- [Java Development Kit (JDK) 21](https://www.oracle.com/java/technologies/javase-downloads.html)
-- [Node.js (v18+) e gerenciador de pacotes npm](https://nodejs.org/)
+
+* Java Development Kit (JDK) 21
+* Node.js (v18+) e gerenciador de pacotes npm
+* MySQL Server 8.0+
+* Apache Maven 3.9+ (opcional)
+
+---
+
+### ☕ Configurando e Executando o Backend (API REST)
+
+#### 1. Navegue até a pasta do backend
 
 ```bash
-# 1. Configurando e Executando o Frontend (React / Vite)
+cd backend
+```
 
-# (...) navegação até a pasta frontend
+#### 2. Configure as credenciais do banco de dados
+
+Abra o arquivo:
+
+```bash
+src/main/resources/application.properties
+```
+
+Configure as credenciais de acordo com sua instalação local do MySQL:
+
+```properties
+spring.datasource.url=jdbc:mysql://localhost:3306/rankitup
+spring.datasource.username=root
+spring.datasource.password=sua_senha
+```
+
+> **Observação:** O banco de dados e todas as tabelas serão criados automaticamente pela aplicação durante a primeira execução utilizando Hibernate/JPA.
+
+#### 3. Execute a API
+
+**Windows**
+
+```bash
+mvnw.cmd spring-boot:run
+```
+
+**Linux/macOS**
+
+```bash
+./mvnw spring-boot:run
+```
+
+Também é possível executar diretamente a classe principal do projeto através de uma IDE, como IntelliJ IDEA ou Eclipse.
+
+Após a inicialização, a API estará disponível em:
+
+```bash
+http://localhost:8080
+```
+
+---
+
+### ⚛️ Configurando e Executando o Frontend (React / Vite)
+
+#### 1. Navegue até a pasta do frontend
+
+```bash
 cd frontend
+```
 
-# Instalação das Dependências: 
+#### 2. Instale as dependências
+
+```bash
 npm install
+```
 
-# Inicialização do Servidor Local: 
+#### 3. Inicialize o servidor local
+
+```bash
 npm run dev
+```
 
-Agora o projeto estará funcionando localmente para teste.
+Após a inicialização, a aplicação estará disponível em:
 
-message.txt
-6 KB
-﻿
-.
-edusoares.wav
- 
- 
- 
+```bash
+http://localhost:5173
+```
+
+---
+
+### 🔗 Execução Completa do Sistema
+
+Para o funcionamento completo da aplicação, é necessário manter simultaneamente:
+
+1. O serviço do MySQL em execução;
+2. A API Spring Boot em execução;
+3. O frontend React/Vite em execução.
+
+Com ambos os serviços ativos, o sistema estará totalmente operacional para testes e utilização local.
